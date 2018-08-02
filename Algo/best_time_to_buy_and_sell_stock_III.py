@@ -27,34 +27,6 @@ class Solution:
                 max_profit = max(max_profit, profit_1+profit_2)
         return max_profit
 
-    def maxProfit_1Pass(self, prices):
-        profit_1 = profit_2 = 0
-        i = 0
-        while i < len(prices):
-            j = i+1
-            while j < len(prices) and prices[j] <= prices[i]:
-                j += 1
-            # if i >= len(prices) or j >= len(prices):
-            #     break
-            change = prices[j] - prices[i]
-            if change > profit_1:
-                profit_2 = profit_1
-                profit_1 = change
-            elif change < profit_1 and change > profit_2:
-                profit_2 = change
-            i, j = j, j+1
-        return profit_1 + profit_2
-
-    def maxProfit(self, prices):
-        hold1, hold2 = float("-inf"), float("-inf")
-        release1, release2 = 0, 0
-        for i in prices:
-            release2 = max(release2, hold2 + i)
-            hold2    = max(hold2,    release1 - i)
-            release1 = max(release1, hold1 + i)
-            hold1    = max(hold1,    -i);
-        return release2
-
 
     def maxProfit_OneTrade(self, prices):
         min_price, max_profit = float("inf"), 0
@@ -64,6 +36,39 @@ class Solution:
         return max_profit
 
 
+    def maxProfit_Ktrade(self, k, prices):
+        '''
+
+        Find the maximum profit with K trades
+
+        Dynamic programming
+        Time-complexity: O(kn)
+
+        :param prices: a list of stock prices
+        :return:
+        '''
+
+
+        profit = [[0 for i in range(len(prices))] for j in range(k+1)]  # profit[k][i] is the maximum profit at day i with k trades
+        m = [[0 for i in range(len(prices))] for j in range(k+1)]    # max{p(t-1, j) - prices(j)} for j in [1, i-1]
+
+        # initialization
+        # for j in range(1, len(prices)+1):
+        #     m[0][j] = profit[0][j] - prices[j-1]
+
+        # dp
+        for k in range(1, k+1):
+            for i in range(1,len(prices)+1):
+                if i == 1:  # day 1
+                    m[k-1][i-1] = profit[k-1][i-1] - prices[i-1]
+                else:
+                    m[k-1][i-1] = max(m[k-1][i-2], profit[k - 1][i - 1] - prices[i - 1])
+                    profit[k][i-1] = max(profit[k][i-2], m[k-1][i-1]+prices[i-1])
+
+
+        return profit
+
+
 
 if __name__=="__main__":
     sol = Solution()
@@ -71,5 +76,5 @@ if __name__=="__main__":
     # p = [1,2,4]
     # p = [2,1,2,0,1]
     p = [1,2,4,2,5,7,2,4,9,0]
-    print(sol.maxProfit(p))
+    print(sol.maxProfit_Ktrade(2, p))
     # print(sol.maxProfit_Slow(p))
