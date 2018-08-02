@@ -45,28 +45,40 @@ class Solution:
         Time-complexity: O(kn)
 
         :param prices: a list of stock prices
-        :return:
+        :return: the trades and maximum profit up to each day
         '''
 
 
         profit = [[0 for i in range(len(prices))] for j in range(k+1)]  # profit[k][i] is the maximum profit at day i with k trades
-        m = [[0 for i in range(len(prices))] for j in range(k+1)]    # max{p(t-1, j) - prices(j)} for j in [1, i-1]
+        m = [[0 for i in range(len(prices))] for j in range(k)]    # max{p(t-1, j) - prices(j)} for j in [1, i-1]
+        trades = [[None for i in range(len(prices))] for j in range(k)]
 
         # initialization
-        # for j in range(1, len(prices)+1):
-        #     m[0][j] = profit[0][j] - prices[j-1]
+        for t in range(k):
+            m[t][0] = -float("inf")
+            trades[t][0] = (1,1)
+
 
         # dp
-        for k in range(1, k+1):
-            for i in range(1,len(prices)+1):
-                if i == 1:  # day 1
-                    m[k-1][i-1] = profit[k-1][i-1] - prices[i-1]
+        for t in range(1, k+1):    # transactions
+            for i in range(2, len(prices)+1):
+
+                prev = None
+                if m[t-1][(i-1)-1] >= profit[t-1][(i-1)-1] - prices[(i-1)-1]:
+                    m[t-1][i-1] = m[t-1][(i-1)-1]
+                    prev = (i-2,i)
                 else:
-                    m[k-1][i-1] = max(m[k-1][i-2], profit[k - 1][i - 1] - prices[i - 1])
-                    profit[k][i-1] = max(profit[k][i-2], m[k-1][i-1]+prices[i-1])
+                    m[t-1][i-1] = profit[t-1][(i-1)-1] - prices[(i-1)-1]
+                    prev = (i-1,i)         # trade between last day and today
 
+                if profit[t][i-2] >= m[t-1][i-1]+prices[i-1]:
+                    trades[t-1][i-1] = trades[t-1][i-2]     # no trades; use the previous trade
+                    profit[t][i-1] = profit[t][i-2]
+                else:
+                    trades[t-1][i-1] = prev
+                    profit[t][i-1] = m[t-1][i-1]+prices[i-1]
 
-        return profit
+        return profit, trades
 
 
 
@@ -76,5 +88,7 @@ if __name__=="__main__":
     # p = [1,2,4]
     # p = [2,1,2,0,1]
     p = [1,2,4,2,5,7,2,4,9,0]
-    print(sol.maxProfit_Ktrade(2, p))
-    # print(sol.maxProfit_Slow(p))
+    profit, trades = sol.maxProfit_Ktrade(2, p)
+
+    print(profit[1:])
+    print(trades)

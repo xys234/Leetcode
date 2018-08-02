@@ -97,7 +97,7 @@ WITH Higher AS (
 	)
 	GROUP BY E1.Id, E1.Company, E1.Salary
 ), Temp1 AS (
-	SELECT H.Company, H.Salary
+	SELECT MIN(Id) AS Id, H.Company, H.Salary
 	FROM Higher H JOIN Lower L ON (
 		H.Id = L.Id AND
 		H.Company = L.Company AND 
@@ -108,3 +108,21 @@ WITH Higher AS (
 )
 SELECT *
 FROM Temp1
+
+
+-- Solution 2: MySql
+
+SELECT
+    ANY_VALUE(Employee.Id), Employee.Company, Employee.Salary
+FROM
+    Employee,
+    Employee alias
+WHERE
+    Employee.Company = alias.Company
+GROUP BY Employee.Company , Employee.Salary
+HAVING SUM(CASE
+    WHEN Employee.Salary = alias.Salary THEN 1
+    ELSE 0
+END) >= ABS(SUM(SIGN(Employee.Salary - alias.Salary)))
+ORDER BY Employee.Id
+;
