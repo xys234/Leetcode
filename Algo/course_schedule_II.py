@@ -52,20 +52,21 @@ class Solution:
                 self.topo_util(j, adj, stack, visited)
             stack.insert(0, i)
 
-    def topo_util_cycle(self, i, adj, stack, cycle_stack, visited):
-        visited[i] = True
-        cycle_stack[i] = True
-        cycle_detected = False
-        for j in adj[i]:
-            if not visited[j]:
-                if not self.topo_util_cycle(j, adj, stack, cycle_stack, visited):
-                    cycle_detected = True
-            elif cycle_stack[j]:
-                cycle_detected = True
-        cycle_stack[i] = False
+    def topo_util_cycle(self, i, adj, stack, cycle_stack, cycle_detected, visited):
         if not cycle_detected:
-            stack.insert(0, i)
-        return cycle_detected
+            visited[i] = True
+            cycle_stack[i] = True
+            cycle_detected = False
+            for j in adj[i]:
+                if not visited[j]:
+                    if self.topo_util_cycle(j, adj, stack, cycle_stack, cycle_detected, visited):
+                        cycle_detected = True
+                elif cycle_stack[j]:
+                    cycle_detected = True
+            cycle_stack[i] = False
+            if not cycle_detected:
+                stack.insert(0, i)
+            return cycle_detected
 
     def topo_sort(self, adj):
         visited = [False]*len(adj)
@@ -79,9 +80,10 @@ class Solution:
         visited = [False]*len(adj)
         stack = []
         cycle_stack = [False]*len(adj)
+        cycle_detected = False
         for i in range(len(adj)):
             if not visited[i]:
-                self.topo_util_cycle(i, adj, stack, cycle_stack, visited)
+                self.topo_util_cycle(i, adj, stack, cycle_stack, cycle_detected, visited)
         return stack
 
     def findOrder(self, numCourses, prerequisites):
