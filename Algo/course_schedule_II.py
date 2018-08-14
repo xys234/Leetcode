@@ -53,20 +53,21 @@ class Solution:
             stack.insert(0, i)
 
     def topo_util_cycle(self, i, adj, stack, cycle_stack, cycle_detected, visited):
-        if not cycle_detected:
-            visited[i] = True
-            cycle_stack[i] = True
-            cycle_detected = False
-            for j in adj[i]:
-                if not visited[j]:
-                    if self.topo_util_cycle(j, adj, stack, cycle_stack, cycle_detected, visited):
-                        cycle_detected = True
-                elif cycle_stack[j]:
-                    cycle_detected = True
-            cycle_stack[i] = False
-            if not cycle_detected:
-                stack.insert(0, i)
-            return cycle_detected
+
+        visited[i] = True
+        cycle_stack[i] = True
+        for j in adj[i]:
+            if not visited[j]:
+                self.topo_util_cycle(j, adj, stack, cycle_stack, cycle_detected, visited)
+            elif cycle_stack[j]:
+                for c in range(len(cycle_detected)):
+                    cycle_detected[c] = True
+        cycle_stack[i] = False
+        if any(cycle_detected):
+            stack.clear()
+        else:
+            stack.insert(0, i)
+        return cycle_detected
 
     def topo_sort(self, adj):
         visited = [False]*len(adj)
@@ -80,9 +81,9 @@ class Solution:
         visited = [False]*len(adj)
         stack = []
         cycle_stack = [False]*len(adj)
-        cycle_detected = False
+        cycle_detected = [False]*len(adj)
         for i in range(len(adj)):
-            if not visited[i]:
+            if not visited[i] and not cycle_detected[i]:
                 self.topo_util_cycle(i, adj, stack, cycle_stack, cycle_detected, visited)
         return stack
 
@@ -94,14 +95,16 @@ class Solution:
         """
 
         adj = self.to_adj(numCourses, prerequisites)
-        stack = self.topo_sort(adj)
+        stack = self.topo_sort_cycle(adj)
         return stack[::-1]
 
 
 if __name__=='__main__':
     # numCourses, prerequisites = 6, [[0,1],[0,2],[1,3],[3,4],[3,5]]
     # numCourses, prerequisites = 4, [[1,0],[2,0],[3,1],[3,2]]
-    numCourses, prerequisites = 6, [[0,1],[0,2],[1,3],[3,4],[5,3],[4,5]]
+    numCourses, prerequisites = 4, [[2,0], [1,0], [3,1], [3,2], [1,3]]
+
+    # numCourses, prerequisites = 6, [[0,1],[0,2],[1,3],[3,4],[5,3],[4,5]]
 
     sol = Solution()
     # print(sol.findOrder(numCourses, prerequisites))
