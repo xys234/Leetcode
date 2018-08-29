@@ -22,6 +22,9 @@ All the given strings' lengths will not exceed 10.
 The length of the given list will be in the range of [2, 50].
 
 
+Time: O(n^2)
+Space: O(n)
+Take-away: brute-force
 
 """
 
