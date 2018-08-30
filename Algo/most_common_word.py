@@ -33,13 +33,43 @@ There are no hyphens or hyphenated words.
 Words only consist of letters, never apostrophes or other punctuation symbols.
 
 
+Time: O(n)
+
+
 """
 
 
 class Solution:
+
+    @classmethod
     def mostCommonWord(self, paragraph, banned):
         """
         :type paragraph: str
         :type banned: List[str]
         :rtype: str
         """
+
+        banned = {b:1 for b in banned}
+        paragraph = paragraph.lower().split(" ")
+        counts = {}
+
+        for w in paragraph:
+            w = w.translate(w.maketrans("", "", ".!?',;"))
+            if w not in banned:
+                if w in counts:
+                    counts[w] += 1
+                else:
+                    counts[w] = 1
+
+        counts = sorted([(k, v) for k, v in counts.items()], key=lambda x: x[1], reverse=True)
+        return counts[0][0]
+
+if __name__=='__main__':
+
+    cases = [
+        ["Bob hit a ball, the hit BALL flew far after it was hit.", ["hit"], "ball"]
+
+    ]
+
+    for case in cases:
+        assert Solution.mostCommonWord(case[0], case[1]) == case[2], (Solution.mostCommonWord(case[0], case[1]), case[2])
