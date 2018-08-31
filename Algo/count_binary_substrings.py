@@ -38,20 +38,47 @@ class Solution:
             diff = s[0] != s[int(n/2)]
             return first_half & second_half & diff
 
-
     def countBinarySubstrings(self, s):
         """
         :type s: str
         :rtype: int
         """
 
+        max_str_len = int(len(s) // 2 * 2)
+        str_len = max_str_len
         num = 0
-        for i in range(len(s)):
-            for j in range(i+2,len(s)+1,2):
-                if self.is_binary_string(s[i:j]):
-                    print(s[i:j])
-                    num += 1
+
+        i = 0
+        while i < len(s):
+            found = False
+            str_len = max_str_len
+            while str_len >= 2:
+                if i+str_len-1 <len(s) and self.is_binary_string(s[i:i+str_len]):
+                    print(s[i:i + str_len])
+                    num += int(str_len / 2)
+                    found = True
+                    break
+                str_len -= 2
+            if found:
+                i += int(str_len/2)
+            else:
+                i += 1
         return num
+
+    def countBinarySubstrings(self, s):
+            """
+            :type s: str
+            :rtype: int
+            """
+            result, prev, curr = 0, 0, 1
+            for i in xrange(1, len(s)):
+                if s[i - 1] != s[i]:
+                    result += min(prev, curr)
+                    prev, curr = curr, 1
+                else:
+                    curr += 1
+            result += min(prev, curr)
+            return result
 
 
 if __name__=='__main__':
@@ -60,7 +87,10 @@ if __name__=='__main__':
 
     cases = [
         ["00110011", 6],
-        ["10101", 4]
+        ["10101", 4],
+        ["00110", 3],
+        ["100111001", 6],
+        ["000111000", 6]
 
     ]
 
