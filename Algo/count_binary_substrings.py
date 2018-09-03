@@ -26,6 +26,7 @@ s will only consist of "0" or "1" characters.
 
 """
 
+import itertools
 
 class Solution:
     def is_binary_string(self, s):
@@ -38,7 +39,7 @@ class Solution:
             diff = s[0] != s[int(n/2)]
             return first_half & second_half & diff
 
-    def countBinarySubstrings(self, s):
+    def countBinarySubstrings_slow(self, s):
         """
         :type s: str
         :rtype: int
@@ -65,13 +66,13 @@ class Solution:
                 i += 1
         return num
 
-    def countBinarySubstrings(self, s):
+    def countBinarySubstrings2(self, s):
             """
             :type s: str
             :rtype: int
             """
             result, prev, curr = 0, 0, 1
-            for i in xrange(1, len(s)):
+            for i in range(1, len(s)):
                 if s[i - 1] != s[i]:
                     result += min(prev, curr)
                     prev, curr = curr, 1
@@ -79,6 +80,10 @@ class Solution:
                     curr += 1
             result += min(prev, curr)
             return result
+
+    def countBinarySubstrings(self, s):
+        group = [len(list(v)) for _, v in itertools.groupby(s)]
+        return sum([min(g1, g2) for g1, g2 in zip(group, group[1:])])
 
 
 if __name__=='__main__':
