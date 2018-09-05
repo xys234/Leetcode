@@ -40,7 +40,7 @@ class MyCalendar:
 
     def search(self, event):
         """
-        find the insertion point, the event time earlier and closest to start_time
+        find the insertion point
         :param t: (start_time, end_time)
         :return:
         """
@@ -56,8 +56,11 @@ class MyCalendar:
                 elif self.calendar[(tail+head)//2][0] < event[0]:
                     head = (tail+head)//2
                 else:
-                    return (tail+head)//2 - 1
-            return head
+                    return (tail+head)//2
+            if event[0] > self.calendar[head][0]:
+                return head + 1
+            else:
+                return head
 
     def book(self, start, end):
         """
@@ -74,16 +77,16 @@ class MyCalendar:
             left_check, right_check = True, True
 
             i = nearest_index
-            while left_check and i >= 0:
-                if self.calendar[i][1] > start:
+            while left_check and i > 0:
+                if self.calendar[i-1][1] > start:
                     left_check = False
                 else:
                     break
                 i -= 1
 
-            i = nearest_index + 1
+            i = nearest_index
             while right_check and i < len(self.calendar):
-                if self.calendar[i][0] < end:
+                if self.calendar[i-1][0] < end or i <= 0:
                     right_check = False
                 else:
                     break
@@ -91,8 +94,8 @@ class MyCalendar:
 
         if left_check and right_check:
             # insert and return True
-            left = self.calendar[:nearest_index+1]
-            right = self.calendar[nearest_index+1:]
+            left = self.calendar[:nearest_index]
+            right = self.calendar[nearest_index:]
             self.calendar = left + [(start, end)] + right
             return True
         else:
@@ -107,6 +110,7 @@ class MyCalendar:
 if __name__ == '__main__':
 
     obj = MyCalendar()
+    # case = [[10, 20], [15, 25], [20, 30]]
     case = [[47,50],[33,41],[39,45],[33,42],[25,32],[26,35],[19,25],[3,8],[8,13],[18,27]]
     for e in case:
         print(obj.book(e[0], e[1]))
