@@ -67,20 +67,34 @@ class MyCalendar:
         """
 
         if not self.calendar:
+            self.calendar.append((start, end))
             return True
         else:
             nearest_index = self.search((start, end))
             left_check, right_check = True, True
+
             i = nearest_index
-            while self.calendar[i][1] > start and left_check and i >= 0:
-                pass
+            while left_check and i >= 0:
+                if self.calendar[i][1] > start:
+                    left_check = False
+                else:
+                    break
+                i -= 1
+
             i = nearest_index + 1
-            while self.calendar[i][0] < end and right_check and i < len(self.calendar):
-                pass
+            while right_check and i < len(self.calendar):
+                if self.calendar[i][0] < end:
+                    right_check = False
+                else:
+                    break
+                i += 1
 
         if left_check and right_check:
-            pass
             # insert and return True
+            left = self.calendar[:nearest_index+1]
+            right = self.calendar[nearest_index+1:]
+            self.calendar = left + [(start, end)] + right
+            return True
         else:
             return False
 
@@ -93,7 +107,6 @@ class MyCalendar:
 if __name__ == '__main__':
 
     obj = MyCalendar()
-    seq = [1,3,4,6,7,8,10,13]
-    seq = [(i, 1) for i in seq ]
-    obj.calendar = seq
-    print(obj.search((5,14)))
+    case = [[47,50],[33,41],[39,45],[33,42],[25,32],[26,35],[19,25],[3,8],[8,13],[18,27]]
+    for e in case:
+        print(obj.book(e[0], e[1]))
