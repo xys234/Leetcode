@@ -76,21 +76,26 @@ class MyCalendar:
             nearest_index = self.search((start, end))
             left_check, right_check = True, True
 
-            i = nearest_index
-            while left_check and i > 0:
-                if self.calendar[i-1][1] > start:
-                    left_check = False
-                else:
-                    break
-                i -= 1
+            if nearest_index == 0 and start == self.calendar[0][0]:
+                left_check = False
+            else:
+                i = nearest_index
+                while left_check and i > 0:
+                    if self.calendar[i-1][1] > start:
+                        left_check = False
+                    else:
+                        break
+                    i -= 1
 
-            i = nearest_index
-            while right_check and i < len(self.calendar):
-                if self.calendar[i-1][0] < end or i <= 0:
-                    right_check = False
-                else:
-                    break
-                i += 1
+                i = nearest_index
+                while right_check and i < len(self.calendar):
+                    if self.calendar[i][0] < end or i < 0:
+                        right_check = False
+                    else:
+                        break
+                    i += 1
+
+
 
         if left_check and right_check:
             # insert and return True
