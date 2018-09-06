@@ -45,22 +45,19 @@ class MyCalendar:
         :return:
         """
 
-        if not self.calendar:
-            self.calendar.append(event)
-        else:
-            head = 0
-            tail = len(self.calendar)
-            while tail - head > 1:
-                if self.calendar[(tail+head)//2][0] > event[0]:
-                    tail = (tail+head)//2
-                elif self.calendar[(tail+head)//2][0] < event[0]:
-                    head = (tail+head)//2
-                else:
-                    return (tail+head)//2
-            if event[0] > self.calendar[head][0]:
-                return head + 1
+        head = 0
+        tail = len(self.calendar)
+        while tail - head > 1:
+            if self.calendar[(tail+head)//2][0] > event[0]:
+                tail = (tail+head)//2
+            elif self.calendar[(tail+head)//2][0] < event[0]:
+                head = (tail+head)//2
             else:
-                return head
+                return (tail+head)//2
+        if event[0] > self.calendar[head][0]:
+            return head + 1
+        else:
+            return head
 
     def book(self, start, end):
         """
