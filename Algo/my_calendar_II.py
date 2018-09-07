@@ -35,7 +35,7 @@ In calls to MyCalendar.book(start, end), start and end are integers in the range
 
 """
 
-class MyCalendar:
+class MyCalendarTwo:
 
     def __init__(self):
         self.calendar = []              # use an array sorted by event start time
@@ -74,42 +74,51 @@ class MyCalendar:
             return True
         else:
             nearest_index = self.search((start, end))
-            left_check, right_check = True, True
+            left_check, right_check = 0, 0
+            left_max, right_min = 0, 10**9+1
 
-            i = nearest_index
-            while left_check and i > 0:
-                violations = 0
+            if len(self.calendar) > 1:
+                check_lower, check_higher = max(0, nearest_index-2), min(len(self.calendar)-1, nearest_index+2)
 
-                if self.calendar[i-1][1] > start:
-                    left_check = False
-                else:
-                    break
-                i -= 1
+                for j in range(check_lower, check_higher+1):
+                    if j < nearest_index:
+                        if self.calendar[j][1] > start:
+                            left_max = max(self.calendar[j][1], left_max)
+                            left_check += 1
+                    elif j == nearest_index:
+                        if self.calendar[j][0] < start:
+                            if self.calendar[j][1] > start:
+                                left_max = max(self.calendar[j][1], left_max)
+                                left_check += 1
+                        elif self.calendar[j][0] < end:
+                            right_min = min(right_min, self.calendar[j][0])
+                            right_check += 1
+                    else:
+                        if self.calendar[j][0] < end:
+                            right_min = min(right_min, self.calendar[j][0])
+                            right_check += 1
 
-            i = nearest_index
-            while right_check and i < len(self.calendar):
-                if self.calendar[i][0] < end or i < 0:
-                    right_check = False
-                else:
-                    break
-                i += 1
-
-
-
-        if left_check and right_check:
-            # insert and return True
+        if left_check >= 2 or right_check >= 2 or right_min < left_max:
+            return False
+        else:
             left = self.calendar[:nearest_index]
             right = self.calendar[nearest_index:]
             self.calendar = left + [(start, end)] + right
             return True
-        else:
-            return False
 
 
 if __name__ == '__main__':
 
-    obj = MyCalendar()
-    case = [[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]
-    # case = [[47,50],[33,41],[39,45],[33,42],[25,32],[26,35],[19,25],[3,8],[8,13],[18,27]]
+    obj = MyCalendarTwo()
+    # case = [[10, 20], [50, 60], [10, 40], [5, 15], [5, 10], [25, 55]]
+    # case = [[26,35],[26,32],[25,32],[18,26],[40,45],[19,26],[48,50],[1,6],[46,50],[11,18]]
+    # case = [[24,40],[43,50],[27,43],[5,21],[30,40],[14,29],[3,19],[3,14],[25,39],[6,19]]
+    # case = [[10,20],[50,60],[10,40],[5,15],[5,10],[25,55]]
+    # case = [[47,50],[1,10],[27,36],[40,47],[20,27],[15,23],[10,18],[27,36]]
+    # case = [[0,1],[20,21],[94,95],[0,1]]
+    case = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,50],[85,99],[74,91],
+             [70,82],[5,17],[77,89],[16,26],[21,31],[30,43],[96,100],[27,39],[44,55],[15,34],[85,99],
+             [74,93],[84,94],[82,94],[46,65],[31,49],[58,73],[86,99],[73,84],[68,80],[5,18],[75,87],
+             [88,100],[25,41],[66,79],[28,41],[60,70],[62,73],[16,33]]   # 60-70 should be false
     for e in case:
         print(obj.book(e[0], e[1]))

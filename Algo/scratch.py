@@ -1,77 +1,17 @@
 
-def isOp(c):
-    if c != "": return (c in "+-*/")
-    else: return False
+input = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,50],[85,99],[74,91],
+         [70,82],[5,17],[77,89],[16,26],[21,31],[30,43],[96,100],[27,39],[44,55],[15,34],[85,99],
+         [74,93],[84,94],[82,94],[46,65],[31,49],[58,73],[86,99],[73,84],[68,80],[5,18],[75,87],
+         [88,100],[25,41],[66,79],[28,41],[60,70],[62,73],[16,33]]
 
-def pri(c): # operator priority
-    if c in "+-": return 0
-    if c in "*/": return 1
 
-def isNum(c):
-    if c != "": return (c in "0123456789.")
-    else: return False
+output =   [True,True,True,True,False,True,False,True,False,False,False,True,True,False,True,False,False,True,False,True,False,False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,True,False,False]
 
-def calc(op, num1, num2):
-    if op == "+": return str(float(num1) + float(num2))
-    if op == "-": return str(float(num1) - float(num2))
-    if op == "*": return str(float(num1) * float(num2))
-    if op == "/": return str(float(num1) / float(num2))
 
-def Infix(expr):
-    expr = list(expr)
-    stackChr = list() # character stack
-    stackNum = list() # number stack
-    num = ""
-    while len(expr) > 0:
-        c = expr.pop(0)
-        if len(expr) > 0: d = expr[0]
-        else: d = ""
-        if isNum(c):
-            num += c
-            if not isNum(d):
-                stackNum.append(num)
-                num = ""
-        elif isOp(c):
-            while True:
-                if len(stackChr) > 0: top = stackChr[-1]
-                else: top = ""
-                if isOp(top):
-                    if not pri(c) > pri(top):
-                        num2 = stackNum.pop()
-                        op = stackChr.pop()
-                        num1 = stackNum.pop()
-                        stackNum.append(calc(op, num1, num2))
-                    else:
-                        stackChr.append(c)
-                        break
-                else:
-                    stackChr.append(c)
-                    break
-        elif c == "(":
-            stackChr.append(c)
-        elif c == ")":
-            while len(stackChr) > 0:
-                c = stackChr.pop()
-                if c == "(":
-                    break
-                elif isOp(c):
-                    num2 = stackNum.pop()
-                    num1 = stackNum.pop()
-                    stackNum.append(calc(c, num1, num2))
+expected = [True,True,True,True,False,True,False,True,False,False,False,True,True,False,True,False,False,True,False,True,False,False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,False,False,False]
 
-    while len(stackChr) > 0:
-        c = stackChr.pop()
-        if c == "(":
-            break
-        elif isOp(c):
-            num2 = stackNum.pop()
-            num1 = stackNum.pop()
-            stackNum.append(calc(c, num1, num2))
 
-    return stackNum.pop()
-
-# TEST
-expr = "2+(6-3)*2"
-print("EXPR: " + expr)
-print("EVAL: " + str(eval(expr)))
-print("INFX: " + Infix(expr))
+for j, (i, o, e) in enumerate(zip(input, output, expected)):
+    if o != e:
+        print(j, i, o, e)
+        break
