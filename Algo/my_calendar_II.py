@@ -76,9 +76,19 @@ class MyCalendarTwo:
             nearest_index = self.search((start, end))
             left_check, right_check = 0, 0
             left_max, right_min = 0, 10**9+1
+            check_lower, check_higher = max(0, nearest_index-2), min(nearest_index+2, len(self.calendar))
 
             if len(self.calendar) > 1:
-                check_lower, check_higher = max(0, nearest_index-2), min(len(self.calendar)-1, nearest_index+2)
+                # get the check range, at least 2 on each side.
+                for i in range(nearest_index-2, 0, -1):
+                    if self.calendar[i][1] < end:
+                        check_lower = min(i + 1, check_lower)
+                        break
+                for i in range(nearest_index+2, len(self.calendar)):
+                    if self.calendar[i][0] > end:
+                        check_higher = max(i - 1, check_higher)
+                        break
+                check_lower, check_higher = max(0, check_lower), min(len(self.calendar)-1, check_higher)
 
                 for j in range(check_lower, check_higher+1):
                     if j < nearest_index:
@@ -114,7 +124,7 @@ if __name__ == '__main__':
     # case = [[26,35],[26,32],[25,32],[18,26],[40,45],[19,26],[48,50],[1,6],[46,50],[11,18]]
     # case = [[24,40],[43,50],[27,43],[5,21],[30,40],[14,29],[3,19],[3,14],[25,39],[6,19]]
     # case = [[10,20],[50,60],[10,40],[5,15],[5,10],[25,55]]
-    # case = [[47,50],[1,10],[27,36],[40,47],[20,27],[15,23],[10,18],[27,36]]
+    # case = [[47,50],[1,10],[27,36],[40,47],[20,27],[15,23],[10,18],[27,36],[17,25], [8,17], [24,33], [23,28], [21, 27]]
     # case = [[0,1],[20,21],[94,95],[0,1]]
     case = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,50],[85,99],[74,91],
              [70,82],[5,17],[77,89],[16,26],[21,31],[30,43],[96,100],[27,39],[44,55],[15,34],[85,99],

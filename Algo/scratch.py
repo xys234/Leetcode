@@ -7,9 +7,7 @@ input = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,5
 
 output =   [True,True,True,True,False,True,False,True,False,False,False,True,True,False,True,False,False,True,False,True,False,False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,True,False,False]
 
-
 expected = [True,True,True,True,False,True,False,True,False,False,False,True,True,False,True,False,False,True,False,True,False,False,False,False,False,False,False,True,False,False,False,False,False,False,False,False,False,False,False,False]
-
 
 for j, (i, o, e) in enumerate(zip(input, output, expected)):
     if o != e:
