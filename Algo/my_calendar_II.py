@@ -80,15 +80,16 @@ class MyCalendarTwo:
 
             if len(self.calendar) > 1:
                 # get the check range, at least 2 on each side.
-                for i in range(nearest_index-2, 0, -1):
-                    if self.calendar[i][1] < end:
+                for i in range(nearest_index-3, 0, -1):
+                    if self.calendar[i][1] < start:
                         check_lower = min(i + 1, check_lower)
                         break
-                for i in range(nearest_index+2, len(self.calendar)):
+                for i in range(nearest_index+3, len(self.calendar)):
                     if self.calendar[i][0] > end:
                         check_higher = max(i - 1, check_higher)
                         break
-                check_lower, check_higher = max(0, check_lower), min(len(self.calendar)-1, check_higher)
+                # check_lower, check_higher = max(0, check_lower), min(len(self.calendar)-1, check_higher)
+                check_lower, check_higher = 0, len(self.calendar)-1
 
                 for j in range(check_lower, check_higher+1):
                     if j < nearest_index:
@@ -126,9 +127,10 @@ if __name__ == '__main__':
     # case = [[10,20],[50,60],[10,40],[5,15],[5,10],[25,55]]
     # case = [[47,50],[1,10],[27,36],[40,47],[20,27],[15,23],[10,18],[27,36],[17,25], [8,17], [24,33], [23,28], [21, 27]]
     # case = [[0,1],[20,21],[94,95],[0,1]]
-    case = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,50],[85,99],[74,91],
-             [70,82],[5,17],[77,89],[16,26],[21,31],[30,43],[96,100],[27,39],[44,55],[15,34],[85,99],
-             [74,93],[84,94],[82,94],[46,65],[31,49],[58,73],[86,99],[73,84],[68,80],[5,18],[75,87],
-             [88,100],[25,41],[66,79],[28,41],[60,70],[62,73],[16,33]]   # 60-70 should be false
+    # case = [[69,78],[81,86],]
+    # case = [[33,44],[85,95],[20,37],[91,100],[89,100],[77,87],[80,95],[42,61],[40,50],[85,99],[74,91],
+    #          [70,82],[5,17],[77,89],[16,26],[21,31],[30,43],[96,100],[27,39],[44,55],[15,34],[85,99],
+    #          [74,93],[84,94],[82,94],[46,65],[31,49],[58,73],[86,99],[73,84],[68,80],[5,18],[75,87],
+    #          [88,100],[25,41],[66,79],[28,41],[60,70],[62,73],[16,33]]   # 60-70 should be false
     for e in case:
         print(obj.book(e[0], e[1]))
