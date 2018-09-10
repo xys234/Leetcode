@@ -32,35 +32,15 @@ Note:
 The number of calls to MyCalendar.book per test case will be at most 1000.
 In calls to MyCalendar.book(start, end), start and end are integers in the range [0, 10^9].
 
+# brute force works
 
 """
 
 class MyCalendarTwo:
 
     def __init__(self):
-        self.calendar = []              # use an array sorted by event start time
-
-    def search(self, event):
-        """
-        find the insertion point
-        :param event: (start_time, end_time)
-        :return:
-        """
-
-        head = 0
-        tail = len(self.calendar)
-        while tail - head > 1:
-            if self.calendar[(tail+head)//2][0] > event[0]:
-                tail = (tail+head)//2
-            elif self.calendar[(tail+head)//2][0] < event[0]:
-                head = (tail+head)//2
-            else:
-                return (tail+head)//2
-        if event[0] > self.calendar[head][0]:
-            return head + 1
-        else:
-            return head
-
+        self.__overlaps = []
+        self.__calendar = []
 
     def book(self, start, end):
         """
@@ -68,53 +48,16 @@ class MyCalendarTwo:
         :type end: int
         :rtype: bool
         """
+        for i, j in self.__overlaps:
+            if start < j and end > i:
+                return False
+        for i, j in self.__calendar:
+            if start < j and end > i:
+                self.__overlaps.append((max(start, i), min(end, j)))
+        self.__calendar.append((start, end))
+        return True
 
-        if not self.calendar:
-            self.calendar.append((start, end))
-            return True
-        else:
-            nearest_index = self.search((start, end))
-            left_check, right_check = 0, 0
-            left_max, right_min = 0, 10**9+1
-            check_lower, check_higher = max(0, nearest_index-2), min(nearest_index+2, len(self.calendar))
 
-            if len(self.calendar) > 1:
-                # get the check range, at least 2 on each side.
-                for i in range(nearest_index-2, 0, -1):
-                    if self.calendar[i][1] < end:
-                        check_lower = min(i + 1, check_lower)
-                        break
-                for i in range(nearest_index+2, len(self.calendar)):
-                    if self.calendar[i][0] > end:
-                        check_higher = max(i - 1, check_higher)
-                        break
-                check_lower, check_higher = max(0, check_lower), min(len(self.calendar)-1, check_higher)
-
-                for j in range(check_lower, check_higher+1):
-                    if j < nearest_index:
-                        if self.calendar[j][1] > start:
-                            left_max = max(self.calendar[j][1], left_max)
-                            left_check += 1
-                    elif j == nearest_index:
-                        if self.calendar[j][0] < start:
-                            if self.calendar[j][1] > start:
-                                left_max = max(self.calendar[j][1], left_max)
-                                left_check += 1
-                        elif self.calendar[j][0] < end:
-                            right_min = min(right_min, self.calendar[j][0])
-                            right_check += 1
-                    else:
-                        if self.calendar[j][0] < end:
-                            right_min = min(right_min, self.calendar[j][0])
-                            right_check += 1
-
-        if left_check >= 2 or right_check >= 2 or right_min < left_max:
-            return False
-        else:
-            left = self.calendar[:nearest_index]
-            right = self.calendar[nearest_index:]
-            self.calendar = left + [(start, end)] + right
-            return True
 
 
 if __name__ == '__main__':
