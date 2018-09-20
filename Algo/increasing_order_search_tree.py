@@ -50,22 +50,71 @@ class TreeNode:
         self.right = None
 
 class Solution:
-    def increasingBST(self, root):
+    def increasingBST_Slow(self, root):
         """
         :type root: TreeNode
         :rtype: TreeNode
         """
 
         seq = []
-
         stack = []
-        stack.insert(0, root)
+        stack.append(root)
+        current = root
         while stack:
-            if stack.left:
-                stack.insert(0, stack.left)
+            if current:
+                if current.left:
+                    stack.append(current.left)
+                current = current.left
+            else:
+                current = stack.pop(len(stack)-1)
+                seq.append(current.val)
+                current = current.right
+                if current:
+                    stack.append(current)
 
+        res = []
+        for i, _ in enumerate(seq):
+            if i != len(seq) - 1:
+                res.extend([seq[i], None])
+            else:
+                res.append(seq[i])
+        return res
 
+    def increasingBST(self, root):
+        def inorder(node):
+            if node:
+                yield from inorder(node.left)
+                yield node.val
+                yield from inorder(node.right)
 
+        ans = cur = TreeNode(None)
+        for v in inorder(root):
+            cur.right = cur = TreeNode(v)
+        return ans.right
+
+if __name__=='__main__':
+    n1 = TreeNode(1)
+    n2 = TreeNode(2)
+    n3 = TreeNode(3)
+    n4 = TreeNode(4)
+    n5 = TreeNode(5)
+    n6 = TreeNode(6)
+    n7 = TreeNode(7)
+    n8 = TreeNode(8)
+    n9 = TreeNode(9)
+
+    n5.left = n3
+    n5.right = n6
+    n3.left = n2
+    n3.right = n4
+    n2.left = n1
+    n5.right = n6
+    n6.right = n8
+    n8.left = n7
+    n8.right = n9
+
+    sol = Solution()
+    print(sol.increasingBST(n5))
 
 
 
