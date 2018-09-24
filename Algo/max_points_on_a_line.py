@@ -60,17 +60,20 @@ class Solution:
             max_pts = 0
             for i, p1 in enumerate(points):
                 same, count = 1, {}
-                for p2 in points[i+1:]:
-                    if p1.x == p2.x and p1.y == p2.y:
-                        same += 1
+                for j, p2 in enumerate(points):
+                    if i == j:
+                        continue
                     else:
-                        x_dif, y_dif = p2.x-p1.x, p2.y-p1.y
-                        div = gcd(x_dif, y_dif)
-                        x_dif, y_dif = x_dif/div, y_dif/div
-                        if (x_dif, y_dif) not in count:
-                            count[(x_dif, y_dif)] = 1
+                        if p1.x == p2.x and p1.y == p2.y and i != j:
+                            same += 1
                         else:
-                            count[(x_dif, y_dif)] += 1
+                            x_dif, y_dif = p2.x-p1.x, p2.y-p1.y
+                            div = gcd(x_dif, y_dif)
+                            x_dif, y_dif = x_dif/div, y_dif/div
+                            if (x_dif, y_dif) not in count:
+                                count[(x_dif, y_dif)] = 1
+                            else:
+                                count[(x_dif, y_dif)] += 1
                 current_max = same
                 for c in count:
                     current_max = max(current_max, count[c]+same)
