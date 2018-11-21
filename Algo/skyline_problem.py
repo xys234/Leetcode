@@ -127,7 +127,8 @@ class MaxHeap:
 
 
 class Solution:
-    def get_events(self, buildings):
+    @classmethod
+    def get_events(cls, buildings):
         """
         Convert buildings to entering and leaving events
         :param buildings: [(start_x, end_x, height)]
@@ -171,11 +172,5 @@ class Solution:
 
 
 if __name__=='__main__':
-    l = [
-            Event(2, 10, EventType.ENTER),
-            Event(3, 15, EventType.ENTER),
-            Event(3, 12, EventType.ENTER),
-            Event(8, 7, EventType.LEAVING),
-            Event(8, 9, EventType.LEAVING),
-         ]
-    print(list(map(str,sorted(l, reverse=False))))
+    buildings = [[2,9,10], [3,7,15], [5,12,12], [15,20,10], [19,24,8]]
+    print(list(map(str,Solution.get_events(buildings))))
