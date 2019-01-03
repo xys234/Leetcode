@@ -32,36 +32,68 @@ You may assume that there are no duplicate edges in the input prerequisites.
 
 
 class Solution:
+    def edges_to_adj(self, edges):
+        '''
+
+        :param edges: a list of edges. Each edge is a two-element list
+        :return: adjacency lists. a dictionary of lists. {v: l(v)}. l(v) is a list of nodes reachable from v
+        '''
+
+        adj = {}
+        for e in edges:
+            if e[0] in adj:
+                adj[e[0]].append(e[1])
+            else:
+                adj[e[0]] = [e[1]]
+        return adj
+
+
+    def is_cycle_util(self, v, adj, visited, recur_stack):
+        visited[v] = True
+        recur_stack[v] = True
+
+        if v in adj:
+            for n in adj[v]:
+                if not visited[n]:
+                    if self.is_cycle_util(n, adj, visited, recur_stack):
+                        return True
+                    else:
+                        visited[n] = True
+                elif recur_stack[n]:
+                    return True
+
+        # Pop v from the recursive stack
+        recur_stack[v] = False
+        return False
+
     def canFinish(self, numCourses, prerequisites):
         """
-        :type numCourses: int
+        :type numCourses: int. Number of courses.
         :type prerequisites: List[List[int]]
         :rtype: bool
+
+        use bfs to determine if there is a cycle
+
         """
-
-        visited = {}
-        for e in prerequisites:
-
-            # from node
-            if visited.get(e[0]) is None:
-                visited[e[0]] = set([e[1]])
-            else:
-                if e[1] in visited[e[0]]:
+        adj = self.edges_to_adj(prerequisites)
+        visited = [False for i in range(numCourses)]
+        recur_stack = [False for i in range(numCourses)]
+        for i in range(numCourses):
+            if i in adj:
+                if self.is_cycle_util(i, adj, visited, recur_stack):
                     return False
-                else:
-                    visited[e[0]].add([e[1]])
-
-            # to node
-            if visited.get(e[1]) is None:
-                visited[e[1]] = set()
-
+            else:
+                visited[i] = True
         return True
 
 
 
 if __name__=='__main__':
 
-    numCourses, prerequisites = 2, [[0,1],[1,0]]
+    # numCourses, prerequisites = 2, [[1,0]]
+    # numCourses, prerequisites = 2, [[0,1],[1,0]]
+    # numCourses, prerequisites = 3, [[1,0],[2,0]]
+    numCourses, prerequisites = 6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]]
 
     sol = Solution()
     print(sol.canFinish(numCourses, prerequisites))
