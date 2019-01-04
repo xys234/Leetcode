@@ -44,3 +44,48 @@ WHERE EmployeeID = 5
 SELECT SupplierID, ContactName, ContactTitle
 FROM Suppliers
 WHERE ContactTitle NOT LIKE 'Marketing Manager'
+
+--13. OrderDetails amount per line item
+--In the OrderDetails table, we have the fields UnitPrice and Quantity. Create a new field,
+--TotalPrice, that multiplies these two together. We’ll ignore the Discount field for now.
+--In addition, show the OrderID, ProductID, UnitPrice, and Quantity. Order by OrderID and
+--ProductID.
+
+SELECT OrderID, ProductID, UnitPrice, Quantity, Discount, (UnitPrice * Quantity) AS TotalPrice
+FROM OrderDetails
+GO
+
+--14. How many customers?
+--How many customers do we have in the Customers table? Show one value only, and don’t rely
+--on getting the record count at the end of a resultset.
+
+SELECT COUNT(CustomerID) AS Number_Customers
+FROM Customers
+GO
+
+--15. When was the first order?
+--Show the date of the first order ever made in the Orders table.
+
+SELECT TOP 1 OrderDate
+FROM Orders
+ORDER BY OrderDate ASC
+GO
+
+--17. Contact titles for customers
+--Show a list of all the different values in the Customers table for ContactTitles. Also include a
+--count for each ContactTitle.
+--This is similar in concept to the previous question “Countries where there are customers”,
+--except we now want a count for each ContactTitle
+
+SELECT ContactTitle, COUNT(CustomerID) AS TotalContactTitle
+FROM Customers
+GROUP BY ContactTitle
+
+--18. Products with associated supplier names
+--We’d like to show, for each product, the associated Supplier. Show the ProductID,
+--ProductName, and the CompanyName of the Supplier.
+
+SELECT ProductID, ProductName, CompanyName
+FROM Products AS P INNER JOIN Suppliers AS S ON (
+	P.SupplierID = S.SupplierID
+)
