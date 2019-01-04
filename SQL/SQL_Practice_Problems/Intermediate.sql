@@ -257,3 +257,205 @@ HAVING COUNT(*) = 2
 --Based on the previous question, we now want to show details of the order, for orders that
 --match the above criteria.
 
+SELECT OrderID, ProductID, UnitPrice, Quantity, Discount
+FROM OrderDetails
+WHERE OrderID IN
+(
+	SELECT OrderID
+	FROM OrderDetails 
+	WHERE Quantity >= 60
+	GROUP BY OrderID, Quantity
+	HAVING COUNT(*) = 2
+)
+
+
+--40. Orders—accidental double-entry details, derived table
+--Here's another way of getting the same results as in the previous problem, using a derived table instead of a CTE. However, there's a bug in this SQL. It returns 20 rows instead of 16. Correct the SQL.
+--Problem SQL: 
+Select OrderDetails.OrderID ,ProductID ,UnitPrice ,Quantity ,Discount 
+From OrderDetails Join 
+( 
+	Select OrderID 
+	From OrderDetails 
+	Where Quantity >= 60 
+	Group By OrderID, Quantity 
+	Having Count(*) = 2 
+) PotentialProblemOrders on PotentialProblemOrders.OrderID = OrderDetails.OrderID 
+Order by OrderID, ProductID
+
+-- Correct
+Select OrderDetails.OrderID ,ProductID ,UnitPrice ,Quantity ,Discount 
+From OrderDetails Join 
+( 
+	Select DISTINCT OrderID 
+	From OrderDetails 
+	Where Quantity >= 60 
+	Group By OrderID, Quantity 
+	Having Count(*) = 2 
+) PotentialProblemOrders on PotentialProblemOrders.OrderID = OrderDetails.OrderID 
+Order by OrderID, ProductID
+
+
+--41. Late orders
+--Some customers are complaining about their orders arriving late. Which orders are late? Sort the results by OrderID.
+
+SELECT OrderID, OrderDate, RequiredDate, ShippedDate
+FROM Orders
+WHERE RequiredDate <= ShippedDate
+ORDER BY OrderID
+
+--42. Late orders—which employees?
+--Some salespeople have more orders arriving late than others. Maybe they're not following up on the order process, and need more training. 
+-- Which salespeople have the most orders arriving late?
+
+
+SELECT E.EmployeeID,LastName, TotalLateOrders
+FROM Employees E JOIN ( 
+	SELECT EmployeeID, COUNT(OrderID) AS TotalLateOrders
+	FROM Orders
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY EmployeeID
+) temp
+ON (
+	temp.EmployeeID = E.EmployeeID
+)
+ORDER BY TotalLateOrders DESC
+
+--43. Late orders vs. total orders
+--Andrew, the VP of sales, has been doing some more thinking some more about the problem of late orders. 
+--He realizes that just looking at the number of orders arriving late for each salesperson isn't a good idea. 
+--It needs to be compared against the total number of orders per salesperson.
+
+With AllOrders AS (
+	SELECT EmployeeID, COUNT(OrderID) AS TotalOrders
+	FROM Orders
+	GROUP BY EmployeeID
+
+), LateOrders AS (
+	SELECT EmployeeID, COUNT(OrderID) AS TotalLateOrders
+	FROM Orders
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY EmployeeID
+)
+SELECT E.EmployeeID, LastName, TotalOrders, TotalLateOrders
+FROM Employees E JOIN AllOrders A ON (
+	E.EmployeeID = A.EmployeeID
+) JOIN LateOrders L ON (
+	E.EmployeeID = L.EmployeeID
+)
+ORDER BY E.EmployeeID
+
+--44/45/46/47. Late orders vs. total orders—missing employee
+--There's an employee missing in the answer from the problem above. 
+--Fix the SQL to show all employees who have taken orders.
+
+With AllOrders AS (
+	SELECT EmployeeID, COUNT(OrderID) AS TotalOrders
+	FROM Orders
+	GROUP BY EmployeeID
+
+), LateOrders AS (
+	SELECT EmployeeID, COUNT(OrderID) AS TotalLateOrders
+	FROM Orders
+	WHERE RequiredDate <= ShippedDate
+	GROUP BY EmployeeID
+)
+SELECT E.EmployeeID, LastName, TotalOrders, 
+CASE WHEN TotalLateOrders IS NULL THEN 0 ELSE TotalLateOrders END AS TotalLateOrders,
+CONVERT(DECIMAL(10,2),ROUND(CASE WHEN TotalLateOrders IS NULL THEN 0 ELSE TotalLateOrders * 1.0 / TotalOrders END, 2)) AS PercentLateOrders
+FROM Employees E LEFT JOIN AllOrders A ON (
+	E.EmployeeID = A.EmployeeID
+) LEFT JOIN LateOrders L ON (
+	E.EmployeeID = L.EmployeeID
+)
+ORDER BY E.EmployeeID
+
+--48. Customer grouping
+--Andrew Fuller, the VP of sales at Northwind, would like to do a sales campaign for existing customers. 
+--He'd like to categorize customers into groups, based on how much they ordered in 2016. 
+--Then, depending on which group the customer is in, he will target the customer with different sales materials.
+--The customer grouping categories are 0 to 1,000, 1,000 to 5,000, 5,000 to 10,000, and over 10,000. 
+--So, if the total dollar amount of the customer’s purchases in that year were between 0 to 1,000, they would be in the “Low” group. 
+--A customer with purchase from 1,000 to 5,000 would be in the “Medium” group, and so on.
+--A good starting point for this query is the answer from the problem “High-value customers—total orders”. 
+--Also, we only want to show customers who have ordered in 2016.
+--Order the results by CustomerID.
+
+WITH OrderTotal AS (
+	SELECT CustomerID, SUM(UnitPrice*Quantity) AS TotalAmount
+	FROM Orders O JOIN OrderDetails D ON (
+		O.OrderID = D.OrderID
+	)
+	WHERE YEAR(OrderDate) = 2016
+	GROUP BY CustomerID
+)
+SELECT O.CustomerID, CompanyName, O.TotalAmount, CustomerGroupName
+FROM OrderTotal O LEFT JOIN CustomerGroupThresholds ON (
+	TotalAmount >= RangeBottom AND TotalAmount <= RangeTop
+) JOIN Customers C ON (
+	O.CustomerID = C.CustomerID
+)
+ORDER BY CustomerID;
+
+--50/51. Customer grouping with percentage
+--Based on the above query, show all the defined CustomerGroups, 
+--and the percentage in each. Sort by the total in each group, in descending order.
+
+WITH OrderTotal AS (
+	SELECT CustomerID, SUM(UnitPrice*Quantity) AS TotalAmount
+	FROM Orders O JOIN OrderDetails D ON (
+		O.OrderID = D.OrderID
+	)
+	WHERE YEAR(OrderDate) = 2016
+	GROUP BY CustomerID
+)
+SELECT CustomerGroupName, COUNT(C.CustomerID) AS TotalInGroup, COUNT(C.CustomerID) * 1.0/(SELECT COUNT(*) FROM OrderTotal) AS PercentageInGroup
+FROM OrderTotal O LEFT JOIN CustomerGroupThresholds ON (
+	TotalAmount >= RangeBottom AND TotalAmount <= RangeTop
+) JOIN Customers C ON (
+	O.CustomerID = C.CustomerID
+)
+GROUP BY CustomerGroupName
+
+--52. Countries with suppliers or customers
+--Some Northwind employees are planning a business trip, and would like to visit as many suppliers and customers as possible. 
+--For their planning, they’d like to see a list of all countries where suppliers and/or customers are based.
+
+SELECT DISTINCT Country
+FROM Customers
+UNION
+SELECT DISTINCT Country
+FROM Suppliers
+ORDER BY Country
+
+--53. Countries with suppliers or customers, version 2
+--The employees going on the business trip don’t want just a raw list of countries, they want more details. 
+--We’d like to see output like the below, in the Expected Results.
+
+SELECT SupplierCountry, CustomerCountry
+FROM 
+(
+	SELECT DISTINCT Country AS CustomerCountry
+	FROM Customers
+) C FULL OUTER JOIN (
+	SELECT DISTINCT Country AS SupplierCountry
+	FROM Suppliers
+) S ON (
+	SupplierCountry = CustomerCountry
+)
+
+--54. Countries with suppliers or customers, version 3
+--The output in the above practice problem is improved, but it’s still not ideal
+--What we’d really like to see is the country name, the total suppliers, and the total customers.
+
+SELECT SupplierCountry, CustomerCountry
+FROM 
+(
+	SELECT Country AS CustomerCountry, COUNT(CustomerID) AS TotalCustomers
+	FROM Customers
+) C FULL OUTER JOIN (
+	SELECT DISTINCT Country AS SupplierCountry
+	FROM Suppliers
+) S ON (
+	SupplierCountry = CustomerCountry
+)
