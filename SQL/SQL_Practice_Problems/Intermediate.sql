@@ -448,14 +448,164 @@ FROM
 --The output in the above practice problem is improved, but it’s still not ideal
 --What we’d really like to see is the country name, the total suppliers, and the total customers.
 
-SELECT SupplierCountry, CustomerCountry
+SELECT CASE 
+WHEN SupplierCountry IS NULL AND CustomerCountry IS NOT NULL THEN CustomerCountry 
+WHEN CustomerCountry IS NULL AND SupplierCountry IS NOT NULL THEN SupplierCountry 
+WHEN CustomerCountry IS NOT NULL AND SupplierCountry IS NOT NULL THEN CustomerCountry
+END AS Country, 
+ISNULL(TotalSuppliers, 0) AS TotalSuppliers, ISNULL(TotalCustomers, 0) AS TotalCustomers
 FROM 
 (
 	SELECT Country AS CustomerCountry, COUNT(CustomerID) AS TotalCustomers
 	FROM Customers
+	GROUP BY Country
 ) C FULL OUTER JOIN (
-	SELECT DISTINCT Country AS SupplierCountry
+	SELECT Country AS SupplierCountry, COUNT(SupplierID) AS TotalSuppliers
 	FROM Suppliers
+	GROUP BY Country
 ) S ON (
 	SupplierCountry = CustomerCountry
 )
+
+--55. First order in each country
+--Looking at the Orders table—we’d like to show details for each order that was the first in that
+--particular country, ordered by OrderID.
+--So, for each country, we want one row. That row should contain the earliest order for that
+--country, with the associated ShipCountry, CustomerID, OrderID, and OrderDate.
+
+WITH OrderRankbyDate AS (
+	SELECT OrderID, CustomerID, ShipCountry, OrderDate, 
+	RANK() OVER (PARTITION BY ShipCountry ORDER BY OrderDate, OrderID ASC) AS OrderRank
+	FROM Orders 
+)
+SELECT OrderID, CustomerID, ShipCountry, OrderDate
+FROM OrderRankbyDate
+WHERE OrderRank = 1
+
+
+--56. Customers with multiple orders in 5 day period
+--There are some customers for whom freight is a major expense when ordering from
+--Northwind.
+--However, by batching up their orders, and making one larger order instead of multiple smaller
+--orders in a short period of time, they could reduce their freight costs significantly.
+--Show those customers who have made more than 1 order in a 5 day period. The sales people
+--will use this to help customers reduce their freight costs.
+--Note: There are more than one way of solving this kind of problem. For this problem, we will
+--not be using Window functions.
+
+WITH OrderIn5Days AS (
+	SELECT O1.CustomerID, O1.OrderID AS InitialOrderID, O1.OrderDate AS InitialOrderDate,
+	O2.OrderID AS NextOrderID, O2.OrderDate AS NextOrderDate, DATEDIFF(DAY, O1.OrderDate, O2.OrderDate) AS DaysBetweenOrders 
+	FROM Orders O1 JOIN Orders O2 ON (
+		O1.CustomerID = O2.CustomerID AND
+		DATEDIFF(DAY, O1.OrderDate, O2.OrderDate) <= 5 AND
+		O1.OrderDate <= O2.OrderDate AND 
+		O1.OrderID <> O2.OrderID
+	)
+), FirstOrder AS (
+	SELECT CustomerID, InitialOrderDate, MIN(NextOrderDate) AS ClosestOrderDate
+	FROM OrderIn5Days
+	GROUP BY CustomerID, InitialOrderDate
+)
+SELECT O.CustomerID, InitialOrderID, O.InitialOrderDate, NextOrderID, NextOrderDate, DaysBetweenOrders
+FROM OrderIn5Days O JOIN FirstOrder F ON
+(
+	O.CustomerID = F.CustomerID AND
+	O.InitialOrderDate = F.InitialOrderDate AND
+	NextOrderDate = ClosestOrderDate
+)
+ORDER BY O.CustomerID, O.InitialOrderDate;
+
+--57. Customers with multiple orders in 5 day period, version 2
+--There’s another way of solving the problem above, using Window functions. We would like to
+--see the following results.
+
+WITH NextOrderDate AS (
+	SELECT CustomerID, OrderID AS InitialOrderID, OrderDate AS InitialOrderDate, 
+	(LEAD(OrderID, 1) OVER (PARTITION BY CustomerID ORDER BY OrderDate)) AS NextOrderID,
+	(LEAD(OrderDate, 1) OVER (PARTITION BY CustomerID ORDER BY OrderDate)) AS NextOrderDate
+	FROM Orders
+)
+SELECT *
+FROM NextOrderDate
+Where DateDiff (dd, InitialOrderDate, NextOrderDate) <= 5
+
+
+------------------ More Problems --------------------------
+
+--1. Cost changes for each product
+--There's a table called ProductCostHistory which contains the history of the cost of the product.
+--Using that table, get the total number of times the product cost has changed.
+--Sort the results by ProductID
+
+SELECT ProductID, COUNT(DISTINCT StandardCost) AS TotalPriceChanges
+FROM ProductCostHistory
+GROUP BY ProductID
+
+--2. Customers with total orders placed
+--We want to see a list of all the customers that have made orders, and the total number of orders
+--the customer has made.
+--Sort by the total number of orders, in descending order
+
+SELECT CustomerID, COUNT(DISTINCT [SalesOrderID]) AS TotalOrders
+FROM [dbo].[SalesOrderHeader]
+GROUP BY CustomerID
+ORDER BY TotalOrders DESC
+
+--3. Products with first and last order date
+--For each product that was ordered, show the first and last date that it was ordered.
+--In the previous problem I gave you the table name to use. For this problem, look at the list of
+--tables, and figure out which ones you need to use.
+--Sort the results by ProductID.
+
+SELECT ProductID, CONVERT(DATE, MIN(OrderDate)) AS FirstOrder, 
+CONVERT(DATE, MAX(OrderDate)) AS FirstOrder
+FROM SalesOrderHeader H JOIN SalesOrderDetail D ON (
+	H.SalesOrderID = D.SalesOrderID
+)
+GROUP BY ProductID
+ORDER BY ProductID
+
+--6. Product cost on a specific date, part 2
+--It turns out that the answer to the above problem has a problem. Change the date to 2014-04-15.
+--What are your results?
+--If you use the SQL from the answer above, and just change the date, you won't get the results
+--you want.
+--Fix the SQL so it gives the correct results with the new date. Note that when the EndDate is null,
+--that means that price is applicable into the future.
+
+SELECT ProductID, StandardCost
+FROM ProductCostHistory
+WHERE STARTDATE <= '2014-04-15' AND '2014-04-15' <= ISNULL(ENDDATE, GETDATE())
+
+--7. Product List Price: how many price changes?
+--Show the months from the ProductListPriceHistory table, and the total number of changes made
+--in that month.
+
+WITH PriceChange AS (
+	SELECT StartDate, ListPrice, 
+	LEAD(ListPrice, 1) OVER (PARTITION BY ProductID ORDER BY StartDate) AS NextListPrice
+	FROM ProductListPriceHistory
+)
+SELECT Format(StartDate, 'yyyy/MM') AS ProductListPriceMonth, COUNT(ListPrice) AS TotalRows
+FROM PriceChange
+WHERE ListPrice <> NextListPrice
+GROUP BY Format(StartDate, 'yyyy/MM')
+
+--8. Product List Price: months with no price changes?
+--After reviewing the results of the previous query, it looks like price changes are made only in
+--one month of the year.
+--We want a query that makes this pattern very clear. Show all months (within the range of
+--StartDate values in ProductListPriceHistory). This includes the months during which no prices
+--were changed.
+
+SELECT CalendarMonth, ISNULL(COUNT(ProductID), 0) AS TotalRows
+FROM ProductListPriceHistory RIGHT JOIN Calendar ON (
+	CalendarDate = StartDate
+)
+WHERE Calendar.CalendarDate >=
+(Select Min(StartDate) from ProductListPriceHistory)
+and Calendar.CalendarDate <=
+(Select Max(StartDate) from ProductListPriceHistory)
+GROUP BY CalendarMonth
+ORDER BY CalendarMonth
