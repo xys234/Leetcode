@@ -609,3 +609,107 @@ and Calendar.CalendarDate <=
 (Select Max(StartDate) from ProductListPriceHistory)
 GROUP BY CalendarMonth
 ORDER BY CalendarMonth
+
+--9. Current list price of every product
+--What is the current list price of every product, using the ProductListPrice history?
+--Order by ProductID
+
+SELECT ProductID, ListPrice
+FROM ProductListPriceHistory
+WHERE EndDate IS NULL
+ORDER BY ProductID
+
+--10. Products without a list price history
+--Show a list of all products that do not have any entries in the list price history table.
+--Sort the results by ProductID
+
+SELECT ProductID, ProductName
+FROM Product
+WHERE ProductID NOT IN 
+(
+	SELECT DISTINCT ProductID
+	FROM ProductListPriceHistory
+)
+ORDER BY ProductID
+
+--11. Product cost on a specific date, part 3
+--In the earlier problem “Product cost on a specific date, part 2”, this answer was given:
+--Select
+--ProductID
+--,StandardCost
+--From ProductCostHistory
+--Where
+--'2014-04-15' Between StartDate and IsNull(EndDate, getdate())
+--Order By ProductID
+--However, there are many ProductIDs that exist in the ProductCostHistory table that don’t show
+--up in this list
+--Show every ProductID in the ProductCostHistory table that does not appear when you run the
+--above SQL.
+
+
+SELECT DISTINCT ProductID
+FROM ProductCostHistory
+WHERE ProductID NOT IN
+(
+	Select
+	ProductID
+	From ProductCostHistory
+	Where
+	'2014-04-15' Between StartDate and IsNull(EndDate, getdate())
+)
+
+--12. Products with multiple current list price records
+--There should only be one current price for each product in the ProductListPriceHistory table, but
+--unfortunately some products have multiple current records.
+--Find all these, and sort by ProductID
+
+SELECT ProductID
+FROM ProductListPriceHistory
+WHERE EndDate IS NULL
+GROUP BY ProductID
+HAVING COUNT(ProductID) > 1
+
+
+--13. Products with their first and last order date, including name
+--and subcategory
+--In the problem “Products with their first and last order date, including name", we looked only at
+--product that have been ordered.
+--It turns out that there are many products that have never been ordered.
+--This time, show all the products, and the first and last order date. Include the product
+--subcategory as well.
+--Sort by the ProductName field.
+
+WITH ProductOrders AS (
+	SELECT ProductID, CONVERT(DATE, MIN(OrderDate)) AS FirstOrder, 
+	CONVERT(DATE, MAX(OrderDate)) AS LastOrder
+	FROM SalesOrderHeader JOIN SalesOrderDetail ON (
+		SalesOrderHeader.SalesOrderID = SalesOrderDetail.SalesOrderID
+	)
+	GROUP BY ProductID
+)
+SELECT Product.ProductID, ProductName, ProductSubCategoryName, FirstOrder, LastOrder
+FROM Product LEFT JOIN ProductSubcategory ON (
+	Product.ProductSubcategoryID = ProductSubcategory.ProductSubCategoryID
+) LEFT JOIN ProductOrders ON (
+	Product.ProductID = ProductOrders.ProductID
+)
+ORDER BY ProductName
+
+--14. Products with list price discrepancies
+--It's astonishing how much work with SQL and data is in finding and resolving discrepancies in
+--data. Some of the salespeople have told us that the current price in the price list history doesn't
+--seem to match the actual list price in the Product table.
+--Find all these discrepancies. Sort the results by ProductID.
+
+SELECT P.ProductID, ProductName, P.ListPrice, L.ListPrice AS LatestListPrice, 
+		(P.ListPrice - L.ListPrice) AS Diff
+FROM Product P JOIN ProductListPriceHistory L ON (
+	P.ProductID = L.ProductID
+)
+WHERE EndDate IS NULL AND P.ListPrice <> L.ListPrice
+ORDER BY P.ProductID
+
+--15. Orders for products that were unavailable
+--It looks like some products were sold before or after they were supposed to be sold, based on the
+--SellStartDate and SellEndDate in the Product table. Show a list of these orders, with details.
+--Sort the results by ProductID, then OrderDate.

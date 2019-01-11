@@ -45,31 +45,15 @@ class Solution:
         :rtype: TreeNode
         """
 
-        pass
+        if root is None:
+            return None
 
-    def binary_search(self, root, val):
-        pass
-
-    def to_array(self, root):
-        """
-        Do level order traversal and save values to an array
-        :param root:
-        :return:
-        """
-
-        res = []
-        queue = []
-        queue.append(root)
-        while queue:
-            ptr = queue.pop(0)
-            if ptr:
-                res.append(ptr.val)
-                queue.append(ptr.left)
-                queue.append(ptr.right)
-            else:
-                res.append(ptr)
-        return res
-
+        if root.val == val:
+            return root
+        elif val < root.val:
+            return self.searchBST(root.left, val)
+        else:
+            return self.searchBST(root.right, val)
 
 if __name__ == '__main__':
     n1 = TreeNode(4)
@@ -84,4 +68,4 @@ if __name__ == '__main__':
     n2.left, n2.right = None, n5
 
     sol = Solution()
-    print(sol.to_array(n1))
+    print(sol.searchBST(n1, 2))
