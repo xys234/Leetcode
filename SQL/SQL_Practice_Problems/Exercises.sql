@@ -1,5 +1,94 @@
 USE Northwind_SPP
 
+-- Q1: We have a table called Shippers. Return all the fields from all the shippers
+
+SELECT TOP 3 *
+FROM Shippers
+
+
+-- In the Categories table, selecting all the fields using this SQL:
+-- Select * from Categories …will return 4 columns. We only want to see two columns, CategoryName and Description.
+
+SELECT CategoryName, Description
+FROM Categories
+
+--3. Sales Representatives
+--We’d like to see just the FirstName, LastName, and HireDate of all the employees with the
+--Title of Sales Representative. Write a SQL statement that returns only those employees.
+
+SELECT FirstName, LastName, HireDate
+FROM Employees
+WHERE TITLE LIKE 'Sales Representative'
+
+
+--4. Sales Representatives in the United States
+--Now we’d like to see the same columns as above, but only for those employees that both have
+--the title of Sales Representative, and also are in the United States.
+
+SELECT FirstName, LastName, HireDate
+FROM Employees
+WHERE TITLE LIKE 'Sales Representative' and Country LIKE 'USA'
+
+--5. Orders placed by specific EmployeeID
+--Show all the orders placed by a specific employee. The EmployeeID for this Employee (Steven
+--Buchanan) is 5.
+
+SELECT *
+FROM Orders
+WHERE EmployeeID = 5
+
+--6. Suppliers and ContactTitles
+--In the Suppliers table, show the SupplierID, ContactName, and ContactTitle for those
+--Suppliers whose ContactTitle is not Marketing Manager.
+
+SELECT SupplierID, ContactName, ContactTitle
+FROM Suppliers
+WHERE ContactTitle NOT LIKE 'Marketing Manager'
+
+--13. OrderDetails amount per line item
+--In the OrderDetails table, we have the fields UnitPrice and Quantity. Create a new field,
+--TotalPrice, that multiplies these two together. We’ll ignore the Discount field for now.
+--In addition, show the OrderID, ProductID, UnitPrice, and Quantity. Order by OrderID and
+--ProductID.
+
+SELECT OrderID, ProductID, UnitPrice, Quantity, Discount, (UnitPrice * Quantity) AS TotalPrice
+FROM OrderDetails
+GO
+
+--14. How many customers?
+--How many customers do we have in the Customers table? Show one value only, and don’t rely
+--on getting the record count at the end of a resultset.
+
+SELECT COUNT(CustomerID) AS Number_Customers
+FROM Customers
+GO
+
+--15. When was the first order?
+--Show the date of the first order ever made in the Orders table.
+
+SELECT TOP 1 OrderDate
+FROM Orders
+ORDER BY OrderDate ASC
+GO
+
+--17. Contact titles for customers
+--Show a list of all the different values in the Customers table for ContactTitles. Also include a
+--count for each ContactTitle.
+--This is similar in concept to the previous question “Countries where there are customers”,
+--except we now want a count for each ContactTitle
+
+SELECT ContactTitle, COUNT(CustomerID) AS TotalContactTitle
+FROM Customers
+GROUP BY ContactTitle
+
+--18. Products with associated supplier names
+--We’d like to show, for each product, the associated Supplier. Show the ProductID,
+--ProductName, and the CompanyName of the Supplier.
+
+SELECT ProductID, ProductName, CompanyName
+FROM Products AS P INNER JOIN Suppliers AS S ON (
+	P.SupplierID = S.SupplierID
+)
 
 --20. Categories, and the total products in each category
 --For this problem, we’d like to see the total number of products in each category. Sort the
@@ -713,3 +802,146 @@ ORDER BY P.ProductID
 --It looks like some products were sold before or after they were supposed to be sold, based on the
 --SellStartDate and SellEndDate in the Product table. Show a list of these orders, with details.
 --Sort the results by ProductID, then OrderDate.
+
+SELECT P.ProductID, OrderDate, ProductName, OrderQty, SellStartDate, SellEndDate 
+FROM SalesOrderHeader H LEFT JOIN SalesOrderDetail D ON (
+	H.SalesOrderID = D.SalesOrderID
+
+) JOIN Product P ON (
+	D.ProductID = P.ProductID
+)
+WHERE H.OrderDate < P.SellStartDate OR H.OrderDate > P.SellEndDate
+ORDER BY P.ProductID
+
+
+--16. Orders for products that were unavailable: details
+--We'd like to get more details on when products that were supposed to be unavailable were ordered.
+--Create a new column that shows whether the product was ordered before the sell start date, or after the sell end date.
+--Sort the results by ProductID and OrderDate.
+
+SELECT P.ProductID, OrderDate, ProductName, OrderQty, SellStartDate, SellEndDate, 
+CASE WHEN OrderDate < SellStartDate THEN 'BEFORE' WHEN OrderDate > SellStartDate THEN 'AFTER' END AS Reason
+FROM SalesOrderHeader H LEFT JOIN SalesOrderDetail D ON (
+	H.SalesOrderID = D.SalesOrderID
+
+) JOIN Product P ON (
+	D.ProductID = P.ProductID
+)
+WHERE H.OrderDate < P.SellStartDate OR H.OrderDate > P.SellEndDate
+ORDER BY P.ProductID, OrderDate
+
+--17. OrderDate with time component
+--How many OrderDate values in SalesOrderHeader have a time component to them?
+--Show the results as below.
+
+SELECT TotalOrdersWithTime, TotalOrders, TotalOrdersWithTime * 1.0 / TotalOrders AS PercentOrderWithTime
+FROM (
+	SELECT COUNT(*) AS TotalOrdersWithTime
+	FROM SalesOrderHeader
+	WHERE CONVERT(TIME, OrderDate) <> CONVERT(TIME, '00:00:00.000')
+) temp1 JOIN 
+(
+	SELECT COUNT(SalesOrderID) AS TotalOrders
+	FROM SalesOrderHeader
+) temp2 ON TotalOrdersWithTime <> TotalOrders
+
+-- 18. Fix this SQL! Number 1
+
+Select
+Product.ProductID
+,ProductName
+,ProductSubCategoryName
+,FirstOrder = Convert(date, Min(OrderDate))
+,LastOrder = Convert(date, Max(OrderDate))
+From Product
+Left Join SalesOrderDetail Detail
+on Product.ProductID = Detail.ProductID
+Left Join SalesOrderHeader Header
+on Header.SalesOrderID = Detail .SalesOrderID
+Left Join ProductSubCategory
+on ProductSubCategory.ProductSubCategoryID = Product.ProductSubCategoryID
+Where
+'Color' = 'Silver'    ---- ERROR IS HERE ----
+Group by Product.ProductID
+,ProductName
+,ProductSubCategoryName
+Order by LastOrder desc
+
+--19. Raw margin quartile for products
+--The product manager would like to show information for all products about the raw margin – 
+--that is, the price minus the cost. Create a query that will show this information, as well as the raw margin quartile.
+--For this problem, the quartile should be 1 if the raw margin of the product is in the top 25%, 2 if the product is in the second 25%, etc.
+--Sort the rows by the product name.
+
+SELECT ProductID, ProductName, StandardCost, ListPrice, (ListPrice - StandardCost) AS Margin, 
+NTILE(4) OVER (ORDER BY (ListPrice - StandardCost) DESC) AS Quantile 
+FROM Product
+WHERE (ListPrice - StandardCost) > 0
+ORDER BY ProductName
+
+
+--20. Customers with purchases from multiple sales people
+--Show all the customers that have made purchases from multiple sales people.
+--Sort the results by the customer name (first name plus last name).
+
+SELECT C.CustomerID, FirstName + '_' + LastName AS CustomerName, TotalDifferentSalesPeople
+FROM Customer C JOIN 
+(
+	SELECT CustomerID, COUNT(DISTINCT SalesPersonEmployeeID) AS TotalDifferentSalesPeople
+	FROM SalesOrderHeader 
+	GROUP BY CustomerID
+	HAVING COUNT(DISTINCT SalesPersonEmployeeID) > 1
+) temp ON (
+	C.CustomerID = temp.CustomerID
+)
+ORDER BY FirstName + '_' + LastName
+
+--22. Duplicate product
+--It looks like the Product table may have duplicate records. 
+--Find the names of the products that have duplicate records (based on having the same ProductName).
+
+SELECT ProductName
+FROM Product
+GROUP BY ProductName
+HAVING COUNT(*) > 1
+
+--23. Duplicate product: details
+--We'd like to get some details on the duplicate product issue. 
+--For each product that has duplicates, show the product name and the specific ProductID that we believe to be the duplicate 
+--(the one that's not the first ProductID for the product name).
+
+WITH FirstProductID AS (
+	SELECT ProductName, MIN(ProductID) AS FirstProductID
+	FROM Product
+	WHERE ProductName IN (
+		SELECT ProductName
+		FROM Product
+		GROUP BY ProductName
+		HAVING COUNT(*) > 1
+	)
+	GROUP BY ProductName
+)
+SELECT P.ProductName, ProductID
+FROM Product P JOIN FirstProductID F ON (
+	P.ProductName = F.ProductName AND
+	P.ProductID <> F.FirstProductID
+)
+
+
+
+WITH ProductCount AS (
+	SELECT ProductName, ProductID, ROW_NUMBER() OVER (PARTITION BY ProductName ORDER BY ProductID) AS ProductCount
+	FROM Product
+)
+SELECT ProductName, ProductID
+FROM ProductCount
+WHERE ProductCount > 1
+
+
+--24. How many cost changes do products generally have?
+--We've worked on many problems based on the ProductCostHistory table. 
+--We know that the cost for some products has changed more than for other products. 
+--Write a query that shows how many cost changes that products have, in general.
+--For this query, you can ignore the fact that in ProductCostHistory, 
+--sometimes there's an additional record for a product where the cost didn't actually change.
+

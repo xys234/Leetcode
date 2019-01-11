@@ -1,6 +1,6 @@
 -- ANSWERS
 
-USER Northwind_SPP
+USE Northwind_SPP
 
 
 -------------------- MORE SQL ------------------------
