@@ -1,5 +1,7 @@
 USE Northwind_SPP
 
+SET 
+
 -- Q1: We have a table called Shippers. Return all the fields from all the shippers
 
 SELECT TOP 3 *
@@ -938,10 +940,116 @@ FROM ProductCount
 WHERE ProductCount > 1
 
 
---24. How many cost changes do products generally have?
+--24/27. How many cost changes do products generally have?
 --We've worked on many problems based on the ProductCostHistory table. 
 --We know that the cost for some products has changed more than for other products. 
 --Write a query that shows how many cost changes that products have, in general.
 --For this query, you can ignore the fact that in ProductCostHistory, 
 --sometimes there's an additional record for a product where the cost didn't actually change.
 
+-- Consider identical prices
+WITH LastPrice AS (
+	SELECT ProductID, StartDate, StandardCost, 
+	LAG(StandardCost) OVER (PARTITION BY ProductID ORDER BY StartDate) AS LastCost
+	FROM ProductCostHistory
+), PriceChanges AS (
+	SELECT ProductID, COUNT(ProductID) AS NumberPriceChanges
+	FROM LastPrice
+	WHERE StandardCost <> LastCost OR LastCost IS NULL
+	GROUP BY ProductID
+)
+SELECT *
+FROM PriceChanges
+ORDER BY ProductID
+
+-- Ignore identical prices records
+SELECT NumberPriceChanges, COUNT(ProductID) AS NumberofProducts
+FROM (
+	SELECT ProductID, COUNT(StandardCost) AS NumberPriceChanges
+	FROM ProductCostHistory
+	GROUP BY ProductID
+) temp
+GROUP BY NumberPriceChanges
+ORDER BY NumberPriceChanges
+
+--25. Size and base ProductNumber for products
+--The ProductNumber field in the Product table comes from the vendor of the product. The size is sometimes a part of this field.
+--We need to get the base ProductNumber (without the size), and then the size separately. 
+--Some products do not have a size. For those products, the base ProductNumber will be the same as the ProductNumber, and the size field will be null.
+--Limit the results to those ProductIDs that are greater than 533. Sort by ProductID. 
+-- The size follows a hyphen
+
+SELECT ProductID, ProductNumber, CHARINDEX('-', ProductNumber) AS HyphenLocation, 
+CASE CHARINDEX('-', ProductNumber) WHEN 0 THEN NULL ELSE SUBSTRING(ProductNumber, CHARINDEX('-', ProductNumber)+1, LEN(ProductNumber)-CHARINDEX('-', ProductNumber)) END AS Size
+FROM Product
+WHERE ProductID > 533
+ORDER BY ProductID
+
+
+--26. Number of sizes for each base product number
+--Now we'd like to get all the base ProductNumbers, and the number of sizes that they have.
+--Use the output of the previous problem to get the results. However, do not use the filter from the previous problem (ProductIDs that are greater than 533). 
+--Instead of that filter, select only those products that are clothing (ProductCategory = 3).
+--Order by the base ProductNumber.
+
+SELECT BaseProductNumber, COUNT(DISTINCT Size) AS TotalSizes
+FROM (
+	SELECT ProductID, ProductNumber, ProductSubcategoryID, CHARINDEX('-', ProductNumber) AS HyphenLocation, 
+	CASE CHARINDEX('-', ProductNumber) WHEN 0 THEN ProductNumber ELSE SUBSTRING(ProductNumber, 0, CHARINDEX('-', ProductNumber)) END AS BaseProductNumber,
+	CASE CHARINDEX('-', ProductNumber) WHEN 0 THEN '1' ELSE SUBSTRING(ProductNumber, CHARINDEX('-', ProductNumber)+1, LEN(ProductNumber)-CHARINDEX('-', ProductNumber)) END AS Size
+	FROM Product
+) temp LEFT JOIN ProductSubcategory S ON temp.ProductSubcategoryID = S.ProductSubcategoryID
+WHERE ProductCategoryID = 3
+GROUP BY BaseProductNumber
+ORDER BY BaseProductNumber
+
+
+--28. Which products had the largest increase in cost?
+--We'd like to show which products have had the largest, one time increases in cost. 
+--Show all of the price increases (and decreases), in decreasing order of difference.
+--Don't show any records for which there is no price difference.
+
+WITH LastPrice AS (
+	SELECT ProductID, StartDate, StandardCost, 
+	LAG(StandardCost, 1) OVER (PARTITION BY ProductID ORDER BY StartDate) AS LastCost 
+	FROM ProductCostHistory
+), PriceChange AS (
+	SELECT StartDate, ProductID, StandardCost, LastCost, (StandardCost - LastCost) AS CostChange
+	FROM LastPrice
+	WHERE LastCost IS NOT NULL
+)
+SELECT *
+FROM PriceChange
+Order by CostChange desc
+
+
+--30. History table with start/end date overlap
+--There is a product that has an overlapping date ranges in the ProductListPriceHistory table.
+--Find the products with overlapping records, and show the dates that overlap.
+
+
+
+WITH Number AS (
+	CREATE SEQUENCE SequenceName  
+    AS int  
+    START WITH 1  
+    INCREMENT BY 1 ;  
+), CalendarDate AS (
+	SELECT CONVERT(DATE, DATEADD(DAY, Num, '2012-01-01')) As CalendarDay
+	FROM Number
+	WHERE CONVERT(DATE, DATEADD(DAY, Num, '2012-01-01')) < '2020-12-31'
+)
+SELECT MAX(CalendarDay)
+FROM CalendarDate
+OPTION (MAXRECURSION 1000000)
+
+
+;WITH e1(n) AS
+(
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL 
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL 
+    SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1 UNION ALL SELECT 1
+), -- 10
+e2(n) AS (SELECT 1 FROM e1 CROSS JOIN e1 AS b)
+SELECT *
+FROM e2
