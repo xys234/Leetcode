@@ -93,7 +93,7 @@ class Solution(object):
             return mid
         if mid > low and nums[mid] < nums[mid-1]:
             return mid-1
-        if nums[low] >= nums[mid]:
+        if nums[low] > nums[mid]:
             return self.find_pivot(nums, low, mid-1)
         return self.find_pivot(nums, mid+1, high)
 

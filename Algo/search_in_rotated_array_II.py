@@ -89,11 +89,14 @@ class Solution(object):
         mid = int((low+high)/2)
         if mid < high and nums[mid] > nums[mid+1]:
             return mid
-        if mid > low and nums[mid] < nums[mid-1]:
+        elif mid > low and nums[mid] < nums[mid-1]:
             return mid-1
-        if nums[low] >= nums[mid]:
+        elif nums[mid] < nums[low]:
             return self.find_pivot(nums, low, mid-1)
-        return self.find_pivot(nums, mid+1, high)
+        elif nums[mid] == nums[low]:
+                return self.find_pivot(nums, low+1, high)
+        else:
+            return self.find_pivot(nums, mid+1, high)
 
 
 if __name__=='__main__':
@@ -102,8 +105,11 @@ if __name__=='__main__':
 
     cases = [
         # (sol.find_pivot, ([3,4,5,6,7,1,2], 0, 6), 4),
-        # (sol.find_pivot, ([1,2,3,4], 0, 3), -1),
-        (sol.find_pivot, ([1,1,3], 0, 2), 2),
+        # (sol.find_pivot, ([1,2,3,4], 0, 3), 3),
+        # (sol.find_pivot, ([1,1,3], 0, 2), 2),
+        # (sol.find_pivot, ([3,3,1], 0, 2), 1),
+        # (sol.find_pivot, ([3,3,3], 0, 2), 2),
+        # (sol.find_pivot, ([3,3,1,2,3], 0, 4), 1),
         # (sol.binary_search, ([1,2,3,4], 2, 0, 3), 1),
         # (sol.binary_search, ([1,2,3,4], 5, 0, 3), -1),
         # (sol.binary_search, ([1,2,3,4], 0, 0, 3), -1),
@@ -118,6 +124,8 @@ if __name__=='__main__':
         # (sol.search, ([3,1], 3), True),
         # (sol.search, ([2,5,6,0,0,1,2], 0), True),
         # (sol.search, ([2,5,6,0,0,1,2], 3), False),
+        # (sol.search, ([1,1,2,1,1,1,1,1,1], 2), True),
+        (sol.search, ([1]*4+[2]+[1]*8, 2), True),
              ]
 
     for i, (func, case, expected) in enumerate(cases):
