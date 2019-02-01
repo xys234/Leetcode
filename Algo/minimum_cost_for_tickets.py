@@ -47,3 +47,13 @@ class Solution(object):
         :type costs: List[int]
         :rtype: int
         """
+
+        dp = [0] * days[-1]
+
+        current_day = 1
+        dp[current_day-1] = costs[0]        # dp[i] is the minimum cost of travel from 1st to the ith day
+
+        for d in days:
+            while current_day <= d - 1:
+                dp[current_day] = dp[current_day - 1]
+                current_day += 1
