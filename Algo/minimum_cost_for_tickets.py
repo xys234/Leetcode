@@ -57,3 +57,5 @@ class Solution(object):
             while current_day <= d - 1:
                 dp[current_day] = dp[current_day - 1]
                 current_day += 1
+
+
