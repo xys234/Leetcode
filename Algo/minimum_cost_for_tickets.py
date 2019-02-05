@@ -48,12 +48,42 @@ class Solution(object):
         :rtype: int
         """
 
-        dp = [0] * days[-1]
+        dp = [0] * (days[-1]+1)         # dp[i] is the minimum cost of travel from 1st to the ith day
+        dp[0] = 0
 
         current_day = 1
-        dp[current_day-1] = costs[0]        # dp[i] is the minimum cost of travel from 1st to the ith day
-
         for d in days:
             while current_day <= d - 1:
                 dp[current_day] = dp[current_day - 1]
                 current_day += 1
+            if current_day == d:
+                if current_day >= 30:
+                    dp[current_day] = min(dp[current_day-30]+costs[2], dp[current_day-7]+costs[1],
+                                          dp[current_day-1]+costs[0])
+                elif current_day >= 7:
+                    dp[current_day] = min(dp[current_day - 7] + costs[1],
+                                          dp[current_day - 1] + costs[0], costs[2])
+                else:
+                    dp[current_day] = min(dp[current_day - 1] + costs[0], costs[1], costs[2])
+                current_day += 1
+        return dp[-1]
+
+if __name__=='__main__':
+
+    sol = Solution()
+
+    cases = [
+
+        # (sol.mincostTickets, ([1,4,6,7,8,20], [2,7,15]), 11),
+        # (sol.mincostTickets, ([1,2,3,4,5,6,7,8,9,10,30,31], [2,7,15]), 17),
+        # (sol.mincostTickets, ([1,2,3,4,6,8,9,10,13,14,16,17,19,21,24,26,27,28,29], [3,14,50]), 50),
+        (sol.mincostTickets, ([1,2,4,5,6,9,10,12,14,15,18,20,21,22,23,24,25,26,28], [3,13,57]), 45),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))
