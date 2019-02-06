@@ -102,16 +102,13 @@ class Solution:
         :return:
         """
 
-        if p is None and q:
-            return False
-        elif p and q is None:
-            return False
-        elif p is None and q is None:
+        if p is None and q is None:
             return True
-        elif p.val != q.val:
+        elif p and q is None or (p is None and q) or (p.val != q.val):
             return False
         else:
-            return self.isSameTree2(p.left, q.left) and self.isSameTree2(p.right, q.right)
+            return self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+
 
 
 if __name__ == "__main__":

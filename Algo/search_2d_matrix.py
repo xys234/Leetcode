@@ -56,7 +56,7 @@ class Solution:
         row = min(range(len(elem_last_col)), key=lambda i: abs(elem_last_col[i] - target))
         if matrix[row][n - 1] < target:
             row += 1
-        if row >= n:
+        if row >= m:
             return False
         else:
             return target in matrix[row]
