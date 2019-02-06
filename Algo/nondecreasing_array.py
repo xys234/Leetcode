@@ -22,6 +22,9 @@ Note: The n belongs to [1, 10,000].
 class Solution:
     def checkPossibility(self, nums: 'List[int]') -> 'bool':
 
+        if len(nums) <= 1:
+            return True
+
         count, first = 0, -1
         for i in range(len(nums)-1):
             if nums[i+1] < nums[i]:
@@ -31,12 +34,12 @@ class Solution:
             if count > 1:
                 return False
 
-        if first > 0 and first < len(nums)-2:
+        if 0 < first < len(nums)-2:
             if nums[first] > nums[first+2] and nums[first+1] < nums[first-1]:
                 return False
-        elif first >= len(nums)-2:
-            if nums[first+1] < nums[first-1]:
-                return False
+        # elif first >= len(nums)-2:
+        #     if nums[first+1] < nums[first-1]:
+        #         return False
         return True
 
 
@@ -45,9 +48,10 @@ if __name__=='__main__':
     sol = Solution()
 
     cases = [
-        # (sol.checkPossibility, ([4,2,3],), True),
-        # (sol.checkPossibility, ([4,2,1],), False),
+        (sol.checkPossibility, ([4,2,3],), True),
+        (sol.checkPossibility, ([4,2,1],), False),
         (sol.checkPossibility, ([1,3,2],), True),
+        (sol.checkPossibility, ([1,2,4,5,3],), True),
 
              ]
 
