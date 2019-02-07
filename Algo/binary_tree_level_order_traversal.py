@@ -17,7 +17,7 @@ return its level order traversal as:
   [15,7]
 ]
 
-
+Review: 2019/02/06   Use two queues to achieve level-order
 
 """
 
@@ -66,6 +66,36 @@ class Solution:
 
         return levels
 
+    def levelOrder2(self, root: 'TreeNode') -> 'List[List[int]]':
+        if not root:
+            return []
+
+        q1, q2 = [root], []
+        res = []
+        while q1 or q2:
+            vals = []
+            while q1:
+                node = q1.pop(0)
+                vals.append(node.val)
+                if node.left:
+                    q2.append(node.left)
+                if node.right:
+                    q2.append(node.right)
+            if vals:
+                res.append(vals)
+
+            vals = []
+            while q2:
+                node = q2.pop(0)
+                vals.append(node.val)
+                if node.left:
+                    q1.append(node.left)
+                if node.right:
+                    q1.append(node.right)
+            if vals:
+                res.append(vals)
+        return res
+
 if __name__ == "__main__":
     root = TreeNode(1)
     root.left = TreeNode(2)
@@ -74,4 +104,4 @@ if __name__ == "__main__":
     root.left.right = TreeNode(5)
 
     sol = Solution()
-    print(sol.levelOrder(root))
+    print(sol.levelOrder2(root))
