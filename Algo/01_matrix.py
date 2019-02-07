@@ -29,11 +29,16 @@ The number of elements of the given matrix will not exceed 10,000.
 There are at least one 0 in the given matrix.
 The cells are adjacent in only four directions: up, down, left and right.
 
+# Notes
+# BFS to visit vertices multiple times from all zeros
+
+Review
+2019.02.06 For distance, consider known algorithm such as BFS, DFS and DP
+
 
 '''
 
-# Notes
-# BFS to visit vertices multiple times from all zeros
+
 
 
 class Solution:
@@ -60,18 +65,17 @@ class Solution:
             for j in range(0, ncols):
                 if matrix[i][j] == 0:
                     queue.append((i,j))
-                    dist[i][j] == 0
                 else:
                     dist[i][j] = MAX_NUM_ELEMENTS
         while queue:
             current = queue.pop(0)
             next = [(current[0] + k[0], current[1] + k[1]) for k in dir]
             for n in next:
-                if n[0] >=0 and n[1] >=0 and n[0] < nrows and n[1] < ncols and matrix[n[0]][n[1]] != 0:
+                if 0 <= n[0] < nrows and 0 <= n[1] < ncols and matrix[n[0]][n[1]] != 0:
                     if dist[n[0]][n[1]] > dist[current[0]][current[1]] + 1:
                         dist[n[0]][n[1]] = dist[current[0]][current[1]] + 1
                         queue.append(n)
-        return(dist)
+        return dist
             
 
 if __name__ == "__main__":
