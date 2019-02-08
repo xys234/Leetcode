@@ -31,6 +31,7 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
+2019.02.06 Reviewed
 
 '''
 

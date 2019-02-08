@@ -26,7 +26,7 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
-
+2019.02.06 Reviewed. Using DFS to find
 
 '''
 
@@ -99,35 +99,40 @@ class Solution:
                     g[p[1]].append(p[0])
             return g
 
-        g = buildGraph()
-        visited = [False for _ in range(numCourses)]
+        def dfsVisit(g, u, colors):
+            colors[u] = 1
+            if u in g:
+                for v in g[u]:
+                    if colors[v] == 1:
+                        return True
+                    elif colors[v] == 0 and dfsVisit(g, v, colors):
+                        return True
+            colors[u] = 2
+            return False
 
+        g = buildGraph()
+        colors = [0 for _ in range(numCourses)]
+
+        is_cycle = False
         for i in range(numCourses):
             if i not in g:
                 continue
-            if not visited[i]:
-                q = [i]
-                while q:
-                    n = q.pop(0)
-                    visited[n] = True
-                    if n in g:
-                        for neighbor in g[n]:
-                            if not visited[neighbor]:
-                                q.append(neighbor)
-                            else:
-                                return False
-        return True
+            is_cycle = dfsVisit(g, i, colors)
+            if is_cycle:
+                break
+
+        return not is_cycle
 
 
 if __name__=='__main__':
     sol = Solution()
 
     cases = [
-        # (sol.canFinish2, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
-        # (sol.canFinish2, (2, [[1,0]],), True),
-        # (sol.canFinish2, (2, [[0,1],[1,0]],), False),
-        # (sol.canFinish2, (3, [[1,0],[2,0]],), True),
-        # (sol.canFinish2, (2, [[0,1]],), True),
+        (sol.canFinish2, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
+        (sol.canFinish2, (2, [[1,0]],), True),
+        (sol.canFinish2, (2, [[0,1],[1,0]],), False),
+        (sol.canFinish2, (3, [[1,0],[2,0]],), True),
+        (sol.canFinish2, (2, [[0,1]],), True),
         (sol.canFinish2, (3, [[2,0],[2,1]],), True),
 
              ]
