@@ -26,7 +26,7 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
-
+2019.02.06 Reviewed. Using DFS to find
 
 '''
 
@@ -86,14 +86,62 @@ class Solution:
                 visited[i] = True
         return True
 
+    def canFinish2(self, numCourses, prerequisites):
+        if numCourses <= 1 or len(prerequisites) == 0:
+            return True
+
+        def buildGraph():
+            g = {}
+            for p in prerequisites:
+                if p[1] not in g:
+                    g[p[1]] = [p[0]]
+                else:
+                    g[p[1]].append(p[0])
+            return g
+
+        def dfsVisit(g, u, colors):
+            colors[u] = 1
+            if u in g:
+                for v in g[u]:
+                    if colors[v] == 1:
+                        return True
+                    elif colors[v] == 0 and dfsVisit(g, v, colors):
+                        return True
+            colors[u] = 2
+            return False
+
+        g = buildGraph()
+        colors = [0 for _ in range(numCourses)]
+
+        is_cycle = False
+        for i in range(numCourses):
+            if i not in g:
+                continue
+            is_cycle = dfsVisit(g, i, colors)
+            if is_cycle:
+                break
+
+        return not is_cycle
 
 
 if __name__=='__main__':
-
-    # numCourses, prerequisites = 2, [[1,0]]
-    # numCourses, prerequisites = 2, [[0,1],[1,0]]
-    # numCourses, prerequisites = 3, [[1,0],[2,0]]
-    numCourses, prerequisites = 6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]]
-
     sol = Solution()
-    print(sol.canFinish(numCourses, prerequisites))
+
+    cases = [
+        (sol.canFinish2, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
+        (sol.canFinish2, (2, [[1,0]],), True),
+        (sol.canFinish2, (2, [[0,1],[1,0]],), False),
+        (sol.canFinish2, (3, [[1,0],[2,0]],), True),
+        (sol.canFinish2, (2, [[0,1]],), True),
+        (sol.canFinish2, (3, [[2,0],[2,1]],), True),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))
+
+

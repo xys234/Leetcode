@@ -19,7 +19,7 @@ Example 3:
 Input: nums = [1,5,9,1,5,9], k = 2, t = 3
 Output: false
 
-
+2019.02.07 Reviewed; Group numbers into ranges with centers at t, 2t, 3t...,
 """
 
 

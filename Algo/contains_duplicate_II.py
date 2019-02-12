@@ -1,4 +1,5 @@
 """
+219. Easy
 
 Given an array of integers and an integer k, find out whether there are two distinct indices i and j in the array
 such that nums[i] = nums[j] and the absolute difference between i and j is at most k.
@@ -15,6 +16,8 @@ Example 3:
 
 Input: nums = [1,2,3,1,2,3], k = 2
 Output: false
+
+2019.02.07 Reviewed
 
 """
 
@@ -38,14 +41,32 @@ class Solution:
                     return True
         return False
 
+    def containsNearbyDuplicate2(self, nums, k):
+        num_index = {}
+        for i, _ in enumerate(nums):
+            if nums[i] not in num_index:
+                num_index[nums[i]] = i
+            else:
+                if i - num_index[nums[i]] <= k:
+                    return True
+                else:
+                    num_index[nums[i]] = i
+        return False
 
-if __name__ == '__main__':
+
+if __name__=='__main__':
+    sol = Solution()
+
     cases = [
-        ([1, 2, 3, 1], 3),
-        ([1,0,1,1], 1),
-        ([1,2,3,1,2,3], 2),
-    ]
-    s = Solution()
-    for case in cases:
-        nums, k = case
-        print(s.containsNearbyDuplicate(nums, k))
+        (sol.containsNearbyDuplicate2, ([1, 2, 3, 1], 3), True),
+        (sol.containsNearbyDuplicate2, ([1,0,1,1], 1), True),
+        (sol.containsNearbyDuplicate2, ([1,2,3,1,2,3], 2), False),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))
