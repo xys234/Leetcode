@@ -19,7 +19,7 @@ class Solution:
         :return:
 
         Time complexity: O(n^2)
-        Space complexity: O(n)
+        Space complexity: O(1)
 
         """
         n, min_element, min_index = len(nums), float("inf"), -1
@@ -33,7 +33,25 @@ class Solution:
                     return True
         return False
 
+    def find132pattern_fast(self, nums: 'List[int]') -> 'bool':
+        """
 
+        :param nums:
+        :return:
+
+        elements in stack must be larger than third; the min element larger than third is on stop
+
+        """
+        third = -float('inf')
+        stack = []
+        for i in range(len(nums)-1,-1,-1):  # find the first
+            if nums[i] < third:
+                return True
+            while stack and nums[i] > stack[-1]:   # loop through the stack to find the best third
+                third = stack.pop()
+            stack.append(nums[i])
+
+        return False
 
 if __name__=='__main__':
 
@@ -41,9 +59,13 @@ if __name__=='__main__':
 
     cases = [
 
-        (sol.find132pattern, ([1,2,3,4],), False),
-        (sol.find132pattern, ([3,1,4,2],), True),
-        (sol.find132pattern, ([3,5,0,3,4],), True),
+        # (sol.find132pattern_fast, ([1,2,3,4],), False),
+        # (sol.find132pattern_fast, ([3,1,4,2],), True),
+        # (sol.find132pattern_fast, ([3,5,0,3,4],), True),
+        # (sol.find132pattern_fast, ([-2,1,1,-2,1,1],), False),
+        # (sol.find132pattern_fast, ([-2,1,2,-2,1,2],), True),
+        # (sol.find132pattern_fast, ([2,4,3,1],), True),
+        (sol.find132pattern_fast, ([10,12,6,8,3,11],), True),
 
              ]
 
