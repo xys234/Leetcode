@@ -1,5 +1,5 @@
 """
-
+99. Recover a binary tree
 
 
 """
@@ -14,6 +14,13 @@ class TreeNode:
 
 class Solution(object):
     def __init__(self):
+        """
+
+        in order traversal
+        Time: O(n)
+        Space: O(1)
+
+        """
         self.prev = None
         self.firstNode = None
         self.secondNode = None
