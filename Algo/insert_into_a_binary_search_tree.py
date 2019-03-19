@@ -49,7 +49,50 @@ class TreeNode:
 
 class Solution:
     def insertIntoBST(self, root: TreeNode, val: int) -> TreeNode:
+        """
 
+        :param root:
+        :param val:
+        :return:
+
+        Time: O(logn)
+        Space: O(logn)
+
+        """
+
+        if not root:
+            return TreeNode(val)
+        node = root
+        while node:
+            if val < node.val:
+                if node.left:
+                    node = node.left
+                else:
+                    node.left = TreeNode(val)
+                    return root
+            else:
+                if node.right:
+                    node = node.right
+                else:
+                    node.right = TreeNode(val)
+                    return root
+
+    def insertIntoBST_recursive(self, root: 'TreeNode', val: 'int') -> 'TreeNode':
+        if not root:
+            return TreeNode(val)
+        if root.val > val:
+            root.left = self.insertIntoBST_recursive(root.left, val)
+        else:
+            root.right = self.insertIntoBST_recursive(root.right, val)
+        return root
+
+
+def inorder(root: 'TreeNode', seq: 'list'):
+    if not root:
+        return
+    inorder(root.left, seq)
+    seq.append(root.val)
+    inorder(root.right, seq)
 
 
 if __name__ == '__main__':
@@ -68,15 +111,18 @@ if __name__ == '__main__':
 
     cases = [
 
-        # (sol.numTrees, (3,), 5),
-        (sol.insertIntoBST, (n4, 2), n2),
-        (sol.insertIntoBST, (n4, 5), None),
+        # (sol.insertIntoBST, (n4, 5), [0, 1, 2, 3, 4, 5, 7]),
+
+        (sol.insertIntoBST_recursive, (n4, 0), [0, 1, 2, 3, 4, 7]),
+        (sol.insertIntoBST_recursive, (n4, 5), [0, 1, 2, 3, 4, 5, 7]),
 
     ]
 
     for i, (func, case, expected) in enumerate(cases):
         ans = func(*case)
-        if ans is expected:
+        inorder_seq = []
+        inorder(ans, inorder_seq)
+        if inorder_seq == expected:
             print("Case {:d} Passed".format(i + 1))
         else:
-            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(inorder_seq)))
