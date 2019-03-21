@@ -27,6 +27,7 @@ class TreeNode(object):
         self.left = None
         self.right = None
 
+
 class Codec:
 
     def serialize(self, root):
@@ -38,10 +39,12 @@ class Codec:
         :rtype: str
         """
 
+        if not root:
+            return ''
+
         s = []
         self.serialize_helper(root, s)
-        return ''.join(s)
-
+        return ','.join(s)
 
     def deserialize(self, data):
         """Decodes your encoded data to tree.
@@ -49,8 +52,12 @@ class Codec:
         :type data: str
         :rtype: TreeNode
         """
+
+        if len(data) == 0:
+            return None
+
         pos = 0
-        return self.deserialize_helper(data, pos, -float('inf'), float('inf'))
+        return self.deserialize_helper(list(data.split(',')), -float('inf'), float('inf'))
 
     def serialize_helper(self, root, s):
         if root is None:
@@ -60,50 +67,18 @@ class Codec:
         self.serialize_helper(root.right, s)
         return s
 
-    def deserialize_helper(self, data, pos, cur_min, cur_max):
-        if pos >= len(data):
+    def deserialize_helper(self, data, cur_min, cur_max):
+        if not data:
             return None
-        val = int(data[pos])
+        val = int(data[0])
         if val < cur_min or val > cur_max:
             return None
-        pos += 1
+        data.pop(0)
         root = TreeNode(val)
-        root.left = self.deserialize_helper(data, pos, cur_min, val)
-        cur_max = float('inf')
-        root.right = self.deserialize_helper(data, pos, val, cur_max)
-        cur_min = -float('inf')
+        root.left = self.deserialize_helper(data, cur_min, val)
+        root.right = self.deserialize_helper(data, val, cur_max)
         return root
 
-    def serialize(self, root):
-        if not root:
-            return ''
-
-        toRet = str(root.val)
-        if root.left:
-            toRet += ',' + self.serialize(root.left)
-        if root.right:
-            toRet += ',' + self.serialize(root.right)
-        return toRet
-
-    def deserialize(self, data):
-
-        def dfs(node, data, inf, sup):
-            if data and inf < data[0].val < node.val:
-                node.left = data.popleft()
-                dfs(node.left, data, inf, node.val)
-
-            if data and node.val < data[0].val < sup:
-                node.right = data.popleft()
-                dfs(node.right, data, node.val, sup)
-
-        if data == '':
-            return []
-
-        data = collections.deque(map(TreeNode, map(int, data.split(','))))
-        root = data.popleft()
-        dfs(root, data, float('-inf'), float('inf'))
-
-        return root
 
 def preorder(root, seq):
 
@@ -114,29 +89,29 @@ def preorder(root, seq):
     preorder(root.left, seq)
     preorder(root.right, seq)
 
+
 if __name__ == '__main__':
 
-    n1 = TreeNode(1)
-    n2 = TreeNode(2)
-    n3 = TreeNode(3)
-    n4 = TreeNode(4)
+    n1 = TreeNode(41)
+    n2 = TreeNode(42)
+    n3 = TreeNode(43)
+    n4 = TreeNode(44)
     n5 = TreeNode(5)
 
-    # n3.left, n3.right = n1, n4
-    # n1.right = n2
-    # n3.left = n5
+    n3.left, n3.right = n1, n4
+    n1.right = n2
 
-    n2.left, n2.right = n1, n3
+    # n2.left, n2.right = n1, n3
 
     seq = []
-    preorder(n2, seq)
-    print(''.join(seq))
+    preorder(n3, seq)
+    print(','.join(seq))
 
     codec = Codec()
-    tree_serialized = codec.serialize(n2)
+    tree_serialized = codec.serialize(n3)
     print(tree_serialized)
     root = codec.deserialize(tree_serialized)
 
     seq = []
     preorder(root, seq)
-    print(''.join(seq))
+    print(','.join(seq))
