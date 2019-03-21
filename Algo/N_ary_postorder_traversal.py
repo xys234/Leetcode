@@ -24,7 +24,7 @@ class Node:
 
 
 class Solution:
-    def postorder(self, root: 'Node'):
+    def postorder_binary(self, root: 'Node'):
         stack, seq = [root], []
         while stack:
             top = stack[-1]
@@ -38,6 +38,19 @@ class Solution:
                 seq.append(top.val)
                 stack.pop(-1)
         return seq
+
+    def postorder(self, root: 'Node'):
+        """
+
+        :param root:
+        :return:
+
+        Two stacks approach
+
+        """
+        stack, seq = [root], []
+
+
 
 
 if __name__=='__main__':
