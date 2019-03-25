@@ -13,6 +13,7 @@ class TreeNode:
     def __repr__(self):
         return f"TreeNode({self.val})"
 
+
 # Definition for a Node.
 class Node:
     def __init__(self, val, children):
@@ -49,30 +50,46 @@ class Solution:
 
         """
         stack, seq = [root], []
+        while stack:
+            top = stack.pop(-1)
+            if top.children:
+                stack.extend(top.children)
+            seq.append(top.val)
+        return list(reversed(seq))
 
 
+    def postorder_recursive(self, root):
+        def traversal(root, ans):
+            if root:
+                for child in root.children:
+                    traversal(child, ans)
+                ans.append(root.val)
+
+        res = []
+        traversal(root, res)
+        return res
 
 
 if __name__=='__main__':
 
     sol = Solution()
 
-    n1 = TreeNode(1)
-    n2 = TreeNode(2)
-    n3 = TreeNode(3)
-    n4 = TreeNode(4)
-    n5 = TreeNode(5)
-    n6 = TreeNode(6)
-    n7 = TreeNode(7)
+    n1 = Node(1, None)
+    n2 = Node(2, None)
+    n3 = Node(3, None)
+    n4 = Node(4, None)
+    n5 = Node(5, None)
+    n6 = Node(6, None)
+    n7 = Node(7, None)
 
-    n1.left, n1.right = n2, n3
-    n2.left, n2.right = n4, n5
-    n3.right = n7
+    n3.children = [n5, n6]
+    n1.children = [n2, n3, n4]
+
 
     cases = [
 
         # (sol.postorder, (3,), 5),
-        (sol.postorder, (n1,), [4, 5, 2, 7, 3, 1]),
+        (sol.postorder, (n1,), [2, 5, 6, 3, 4, 1]),
 
              ]
 
