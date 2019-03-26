@@ -21,14 +21,14 @@ class Solution(object):
 
         def dfs(start_index, curr_addr, groups):
             if start_index >= n or n - start_index < groups or n - start_index > 3 * groups:
-                return False
+                return
 
             if groups == 1:
                 if start_index < n - 1 and s[start_index] == "0":
-                    return False
+                    return
                 elif int(s[start_index:]) <= 255:
                     ips.append(".".join(curr_addr + [s[start_index:]]))
-                    return True
+                    return
 
             if s[start_index] == "0":
                 dfs(start_index + 1, curr_addr + [s[start_index:start_index + 1]], groups - 1)
@@ -36,7 +36,7 @@ class Solution(object):
                 for i in range(1, 4):
                     if int(s[start_index:start_index + i]) <= 255:
                         dfs(start_index + i, curr_addr + [s[start_index:start_index + i]], groups - 1)
-            return False
+            return
 
         n = len(s)
         ips = []
