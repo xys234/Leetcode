@@ -1,32 +1,31 @@
 
+import logging
 
-from collections import namedtuple
 
-BaseNetworkRecord = namedtuple('BaseNetworkRecord', ('ANode', 'BNode'))
+class DispatchingFormatter:
 
-class Record:
+    def __init__(self, formatters, default_formatter):
+        self._formatters = formatters
+        self._default_formatter = default_formatter
 
-    fmt_binary = None
-    fmt_string = None
+    def format(self, record):
+        formatter = self._formatters.get(record.name, self._default_formatter)
+        return formatter.format(record)
 
-    def __init__(self, values):
-        self.values = values
 
-    def to_string(self):
-        print('to_string called')
+handler = logging.StreamHandler()
+handler.setFormatter(DispatchingFormatter(
+    {
+        'base.foo': logging.Formatter('FOO: %(message)s'),
+        'base.bar': logging.Formatter('BAR: %(message)s'),
+    },
+    logging.Formatter('%(message)s'),
+)
+)
+logging.getLogger().addHandler(handler)
 
-    def to_binary(self):
-        print('to_binary called')
-
-    def convert(self):
-        pass
-
-    def from_string(self):
-        pass
-
-class NetworkRecord(Record, BaseNetworkRecord):
-    Record.fmt_string = 'i'
-    Record.fmt_binary = 'i'
-
+logging.getLogger('base.foo').error('Log from foo')
+logging.getLogger('base.bar').error('Log from bar')
+logging.getLogger('base.baz').error('Log from baz')
 
 
