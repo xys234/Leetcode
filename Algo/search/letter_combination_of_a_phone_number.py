@@ -52,6 +52,36 @@ class Solution:
             backtrack([], 0)
         return ans
 
+    def letterCombinations2(self, digits):
+        mapping = {
+            '2': "abc",
+            '3': "def",
+            '4': "ghi",
+            '5': "jkl",
+            '6': "mno",
+            '7': "pqrs",
+            '8': "tuv",
+            '9': "wxyz"
+        }
+
+        if not digits:
+            return []
+
+        n = len(digits)
+        res = []
+
+        def dfs(path, start_index):
+            if start_index >= n:
+                res.append(path)
+                return
+            else:
+                letters = mapping[digits[start_index]]
+                for letter in letters:
+                    dfs(path + letter, start_index + 1)
+                    # no pop because path does not change; path+letter is a new string
+        dfs("", 0)
+        return res
+
 
 if __name__=='__main__':
 
@@ -59,7 +89,8 @@ if __name__=='__main__':
 
     cases = [
 
-        (sol.letterCombinations, ('23',), ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]),
+        # (sol.letterCombinations, ('23',), ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]),
+        (sol.letterCombinations2, ('23',), ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"]),
 
              ]
 

@@ -57,21 +57,51 @@ class Solution:
         backtrack([], 0, 0)
         return ans
 
+    def combinationSum2(self, candidates, target):
+
+        res = []
+        candidates.sort()
+
+        def dfs(solution, target, last_index):
+            if target == 0:
+                res.append(solution.copy())
+            if target > 0:
+                for i, candidate in enumerate(candidates):
+                    if i >= last_index:
+                        new_target = target - candidate
+                        if new_target < 0:
+                            break
+                        else:
+                            solution.append(candidate)
+                            dfs(solution, new_target, i)
+                            solution.pop()
+
+        dfs([], target, 0)
+        return res
+
 
 if __name__=='__main__':
+
+    def compare_list(ans, expected, type='value'):
+        if type == 'equality':
+            return ans == expected
+        if type == 'item':
+            return sorted(ans) == sorted(expected)
 
     sol = Solution()
 
     cases = [
 
-        (sol.combinationSum, ([2,3,6,7], 7), [[7],[2,2,3]]),
-        (sol.combinationSum, ([2,3,5], 8), [[2,2,2,2],[2,3,3],[3,5]]),
+        (sol.combinationSum2, ([2,3,6,7], 7), [[7],[2,2,3]]),
+        (sol.combinationSum2, ([2,3,5], 8), [[2,2,2,2],[2,3,3],[3,5]]),
 
              ]
 
+
+
     for i, (func, case, expected) in enumerate(cases):
         ans = func(*case)
-        if ans == expected:
+        if compare_list(ans, expected, 'item'):
             print("Case {:d} Passed".format(i + 1))
         else:
             print("Case {:d} Failed; Expected {:s} != Output {:s}".format(i+1, str(expected), str(ans)))
