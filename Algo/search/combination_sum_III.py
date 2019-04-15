@@ -24,4 +24,37 @@ Output: [[1,2,6], [1,3,5], [2,3,4]]
 
 class Solution:
     def combinationSum3(self, k: int, n: int):
-        pass
+        res = []
+
+        def recurse(solution, num, target):
+            if len(solution) == k and target == 0:
+                res.append(solution[:])
+
+            for j in range(num, 10):
+                new_target = target - j
+                if new_target < 0:
+                    break
+
+                recurse(solution + [j], j+1, new_target)
+
+        recurse([], 1, n)
+        return res
+
+
+if __name__ == '__main__':
+
+        sol = Solution()
+
+        cases = [
+
+            (sol.combinationSum3, (3, 7), [[1, 2, 4]]),
+            (sol.combinationSum3, (3, 9), [[1, 2, 6], [1, 3, 5], [2, 3, 4]]),
+
+        ]
+
+        for k, (func, case, expected) in enumerate(cases):
+            ans = func(*case)
+            if sorted(ans) == sorted(expected):
+                print("Case {:d} Passed".format(k + 1))
+            else:
+                print("Case {:d} Failed; Expected {:s} != Output {:s}".format(k + 1, str(expected), str(ans)))

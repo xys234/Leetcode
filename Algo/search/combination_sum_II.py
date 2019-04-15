@@ -35,4 +35,34 @@ A solution set is:
 
 class Solution:
     def combinationSum2(self, candidates: 'List[int]', target: 'int') -> 'List[List[int]]':
-        pass
+        if not candidates:
+            return []
+
+        res = []
+        candidates.sort()
+        n = len(candidates)
+
+        def dfs(solution, target, last_index):
+            """
+
+            :param solution: The current partial solution
+            :param target: the current target
+            :param used: whether the element has been used
+            :return:
+            """
+
+            if target == 0:
+                res.append(tuple(solution))
+                return
+
+            for i in range(last_index, n):
+                new_target = target - candidates[i]
+                if new_target < 0:
+                    break
+                else:
+                    solution.append(candidates[i])
+                    dfs(solution, new_target, i+1)
+                    solution.pop()
+
+        dfs([], target, 0)
+        return [list(s) for s in set(res)]
