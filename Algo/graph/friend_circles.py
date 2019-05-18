@@ -34,8 +34,11 @@ If M[i][j] = 1, then M[j][i] = 1.
 
 """
 
+from typing import List
+
+
 class Solution:
-    def findCircleNum(self, M):
+    def findCircleNum1(self, M):
         """
         :type M: List[List[int]]
         :rtype: int
@@ -68,6 +71,32 @@ class Solution:
             if i not in visited:
                 return i
         return None
+
+    def findCircleNum(self, M: List[List[int]]) -> int:
+        if not M:
+            return 0
+
+        r, c = len(M), len(M[0])
+
+        def dfs(x, y):
+            M[x][y] = 2
+            if x - 1 >= 0 and M[x-1][y] == 1:
+                dfs(x-1, y)
+            if y - 1 >= 0 and M[x][y-1] == 1:
+                dfs(y-1, x)
+            if x + 1 < r and M[x+1][y] == 1:
+                dfs(x+1, y)
+            if y + 1 < c and M[x][y+1] == 1:
+                dfs(x, y+1)
+
+        number_circles = 0
+        for i in range(r):
+            for j in range(c):
+                if M[i] == 1:
+                    number_circles += 1
+        return number_circles
+
+
 
 if __name__ == "__main__":
     sol = Solution()
