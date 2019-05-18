@@ -31,10 +31,13 @@ N is in range [1,200].
 M[i][i] = 1 for all students.
 If M[i][j] = 1, then M[j][i] = 1.
 
+Time: O(n)
+Space: O(n)
 
 """
 
 from typing import List
+from collections import Counter
 
 
 class Solution:
@@ -73,36 +76,37 @@ class Solution:
         return None
 
     def findCircleNum(self, M: List[List[int]]) -> int:
-        if not M:
-            return 0
+        r = len(M)
+        visited, count = set(), 0
 
-        r, c = len(M), len(M[0])
+        def dfs(row):
+            for j in range(r):
+                if M[row][j] and j not in visited:
+                    visited.add(j)
+                    dfs(j)
 
-        def dfs(x, y):
-            M[x][y] = 2
-            if x - 1 >= 0 and M[x-1][y] == 1:
-                dfs(x-1, y)
-            if y - 1 >= 0 and M[x][y-1] == 1:
-                dfs(y-1, x)
-            if x + 1 < r and M[x+1][y] == 1:
-                dfs(x+1, y)
-            if y + 1 < c and M[x][y+1] == 1:
-                dfs(x, y+1)
-
-        number_circles = 0
         for i in range(r):
-            for j in range(c):
-                if M[i] == 1:
-                    number_circles += 1
-        return number_circles
-
+            if i not in visited:
+                count += 1
+                dfs(i)              # all friends for i
+        return count
 
 
 if __name__ == "__main__":
     sol = Solution()
 
-    mat = [[1,1,0],[1,1,1],[0,1,1]]
-    print(sol.findCircleNum(mat))
+    cases = [
 
-    mat = [[1, 1, 0], [1, 1, 0], [0, 0, 1]]
-    print(sol.findCircleNum(mat))
+        (sol.findCircleNum, ([[1,1,0],[1,1,0],[0,0,1]],), 2),
+        (sol.findCircleNum, ([[1, 1, 0], [1, 1, 1], [0, 1, 1]],), 1),
+        (sol.findCircleNum, ([[1,0,0,1],[0,1,1,0],[0,1,1,1],[1,0,1,1]],), 1),
+        (sol.findCircleNum, ([[1,0,0],[0,1,0],[0,0,1]],), 3),
+
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != Output {:s}".format(i + 1, str(expected), str(ans)))
