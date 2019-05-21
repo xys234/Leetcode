@@ -51,7 +51,6 @@ class Solution:
         n = len(S)
         letters = [letter for letter in S]
         res = []
-        used = [False for _ in range(n)]
 
         def recurse(j=0):
             if j == n:
