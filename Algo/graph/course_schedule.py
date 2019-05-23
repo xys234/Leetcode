@@ -1,5 +1,8 @@
 '''
 
+207. Course Scehdule
+
+Medium
 
 There are a total of n courses you have to take, labeled from 0 to n-1.
 
@@ -26,6 +29,8 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
+Solutions:
+
 2019.02.06 Reviewed. Using DFS to find
 
 '''
@@ -46,7 +51,6 @@ class Solution:
             else:
                 adj[e[0]] = [e[1]]
         return adj
-
 
     def is_cycle_util(self, v, adj, visited, recur_stack):
         visited[v] = True
@@ -123,8 +127,11 @@ class Solution:
 
         return not is_cycle
 
+    def canFinish3(self, numCourses, prerequisites):
+        pass
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     sol = Solution()
 
     cases = [

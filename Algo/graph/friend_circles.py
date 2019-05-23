@@ -81,7 +81,7 @@ class Solution:
 
         def dfs(row):
             for j in range(r):
-                if M[row][j] and j not in visited:
+                if M[row][j] and j not in visited:   # all reachable and unvisited
                     visited.add(j)
                     dfs(j)
 
