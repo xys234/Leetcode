@@ -128,19 +128,41 @@ class Solution:
         return not is_cycle
 
     def canFinish3(self, numCourses, prerequisites):
-        pass
+
+        g = [[] for _ in range(numCourses)]
+        for p in prerequisites:
+            g[p[1]].append(p[0])
+
+        def dfs(node, g, status):
+            unvisited, visiting, visited = 0, 1, 2
+            status[node] = visiting
+            if g[node]:
+                for v in g[node]:
+                    if status[v] == visiting:
+                        return False
+                    elif status[v] == unvisited and not dfs(v, g, status):
+                        return False
+            status[node] = visited
+            return True
+
+        status = [0] * numCourses
+        for n in range(numCourses):
+            if g[n]:
+                if not dfs(n, g, status):
+                    return False
+        return True
 
 
 if __name__ == '__main__':
     sol = Solution()
 
     cases = [
-        (sol.canFinish2, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
-        (sol.canFinish2, (2, [[1,0]],), True),
-        (sol.canFinish2, (2, [[0,1],[1,0]],), False),
-        (sol.canFinish2, (3, [[1,0],[2,0]],), True),
-        (sol.canFinish2, (2, [[0,1]],), True),
-        (sol.canFinish2, (3, [[2,0],[2,1]],), True),
+        (sol.canFinish3, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
+        (sol.canFinish3, (2, [[1,0]],), True),
+        (sol.canFinish3, (2, [[0,1],[1,0]],), False),
+        (sol.canFinish3, (3, [[1,0],[2,0]],), True),
+        (sol.canFinish3, (2, [[0,1]],), True),
+        (sol.canFinish3, (3, [[2,0],[2,1]],), True),
 
              ]
 
