@@ -31,7 +31,11 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
+Solution:
 2019.02.06 Reviewed
+2019.05.23 Passed
+
+
 
 '''
 
@@ -44,7 +48,6 @@ class Solution:
         for e in edges:
             adj[e[0]].append(e[1])
         return adj
-
 
     def topo_util(self, i, adj, stack, visited):
         if not visited[i]:
@@ -99,16 +102,50 @@ class Solution:
         stack = self.topo_sort_cycle(adj)
         return stack[::-1]
 
+    def findOrder2(self, numCourses, prerequisites):
+        graph = [[] for _ in range(numCourses)]
+        for p in prerequisites:
+            if p:
+                graph[p[1]].append(p[0])
 
-if __name__=='__main__':
-    # numCourses, prerequisites = 6, [[0,1],[0,2],[1,3],[3,4],[3,5]]
-    # numCourses, prerequisites = 4, [[1,0],[2,0],[3,1],[3,2]]
-    numCourses, prerequisites = 4, [[2,0], [1,0], [3,1], [3,2], [1,3]]
+        unvisited, visiting, visited = 0, 1, 2
+        status = [unvisited for _ in range(numCourses)]
 
-    # numCourses, prerequisites = 6, [[0,1],[0,2],[1,3],[3,4],[5,3],[4,5]]
+        def dfs(node, g, sorted_graph):
+            status[node] = visiting
+            if g[node]:
+                for v in g[node]:
+                    if status[v] == visiting:
+                        return False
+                    if status[v] == unvisited and not dfs(v, g, sorted_graph):
+                        return False
+            status[node] = visited
+            sorted_graph.append(node)
+            return True
 
+        sorted_g = []
+        for j in range(numCourses):
+            if status[j] != visited:
+                if not dfs(j, graph, sorted_g):
+                    return []
+        return sorted_g[::-1]
+
+
+if __name__ == '__main__':
     sol = Solution()
-    # print(sol.findOrder(numCourses, prerequisites))
 
-    adj = sol.to_adj(numCourses, prerequisites)
-    print(sol.topo_sort_cycle(adj))
+    cases = [
+        (sol.findOrder2, (2, [[1, 0]],), ([0, 1],)),
+        (sol.findOrder2, (4, [[1, 0], [2, 0], [3, 1], [3, 2]],), ([0, 1, 2, 3], [0, 2, 1, 3])),
+        (sol.findOrder2, (1, [[]],), ([0],)),
+        # (sol.findOrder2, (4, [[1,0],[2,0],[3,1],[3,2]],), True),
+        # (sol.findOrder2, (4, [[2,0], [1,0], [3,1], [3,2], [1,3]],), False),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans in expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))

@@ -131,10 +131,12 @@ class Solution:
 
         g = [[] for _ in range(numCourses)]
         for p in prerequisites:
-            g[p[1]].append(p[0])
+            if p:
+                g[p[1]].append(p[0])
+
+        unvisited, visiting, visited = 0, 1, 2
 
         def dfs(node, g, status):
-            unvisited, visiting, visited = 0, 1, 2
             status[node] = visiting
             if g[node]:
                 for v in g[node]:
@@ -147,7 +149,7 @@ class Solution:
 
         status = [0] * numCourses
         for n in range(numCourses):
-            if g[n]:
+            if g[n] and status[n] != visited:
                 if not dfs(n, g, status):
                     return False
         return True
