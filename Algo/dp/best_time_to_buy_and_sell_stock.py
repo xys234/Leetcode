@@ -17,6 +17,8 @@ Output: 0
 
 In this case, no transaction is done, i.e. max profit = 0.
 
+Review:
+2019-06-20
 
 """
 
@@ -55,11 +57,30 @@ class Solution:
             max_profit = max(p - min_price, max_profit)
         return max_profit
 
-if __name__=="__main__":
-    sol = Solution()
-    # p1 = [7, 1, 5, 3, 6, 4]
-    # print(sol.maxProfit(p1))
+    def maxProfit2(self, prices):
+        lowest_price, max_profit = prices[0], 0
+        for k in range(1, len(prices)):
+            if prices[k] > lowest_price and max_profit < prices[k] - lowest_price:
+                max_profit = prices[k] - lowest_price
+            elif prices[k] < lowest_price:
+                lowest_price = prices[k]
+        return max_profit
 
-    p2 = list(range(10000,0,-1))
-    p2.extend([0]*10000)
-    print(sol.maxProfit(p2))
+
+if __name__ == "__main__":
+
+    sol = Solution()
+    method = sol.maxProfit2
+
+    cases = [
+        (method, ([7, 1, 5, 3, 6, 4],), 5),
+        (method, ([7, 6, 4, 3, 1],), 0),
+        (method, ([3,3,5,0,0,3,1,4],), 4),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))

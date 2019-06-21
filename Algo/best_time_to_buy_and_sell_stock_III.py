@@ -6,6 +6,25 @@ Say you have an array for which the ith element is the price of a given stock on
 
 Design an algorithm to find the maximum profit. You may complete at most two transactions.
 
+Example 1:
+
+Input: [3,3,5,0,0,3,1,4]
+Output: 6
+Explanation: Buy on day 4 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
+             Then buy on day 7 (price = 1) and sell on day 8 (price = 4), profit = 4-1 = 3.
+Example 2:
+
+Input: [1,2,3,4,5]
+Output: 4
+Explanation: Buy on day 1 (price = 1) and sell on day 5 (price = 5), profit = 5-1 = 4.
+             Note that you cannot buy on day 1, buy on day 2 and sell them later, as you are
+             engaging multiple transactions at the same time. You must sell before buying again.
+Example 3:
+
+Input: [7,6,4,3,1]
+Output: 0
+Explanation: In this case, no transaction is done, i.e. max profit = 0.
+
 Note:
 You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
 
@@ -63,21 +82,6 @@ TRADE		(1,1)	(1,2)	(1,3)	(1,3)	(4,5)	(4,6)	(4,6)	(7,8)	(7,9)	(7,9)
 
 
 class Solution:
-    def maxProfit_Slow(self, prices):
-        max_profit = 0
-        profit_1 = 0
-        profit_2 = 0
-        for i in range(len(prices)):
-            for j in range(i+1, len(prices)):
-                profit_1 = prices[j] - prices[i]
-                if len(prices) - 1 - j >= 2:
-                    profit_2 = self.maxProfit_OneTrade(prices[j:])
-                else:
-                    profit_2 = 0
-                max_profit = max(max_profit, profit_1+profit_2)
-        return max_profit
-
-
     def maxProfit_OneTrade(self, prices):
         min_price, max_profit = float("inf"), 0
         for p in prices:
@@ -101,7 +105,6 @@ class Solution:
                 for j in range(1, i + 1):
                     dp[t][i] = max(dp[t][i], dp[t][i-1], dp[t - 1][i], dp[t - 1][j] + prices[i-1] - prices[j-1])
         return dp[MAX_NUM_TRANSACTIONS][n]
-
 
     def maxProfit_Ktrade(self, k, prices):
         '''
@@ -147,23 +150,54 @@ class Solution:
 
         return profit, trades
 
+    def maxProfit2(self, prices):
+
+        if not prices:
+            return 0
+
+        MAX_TRADES = 2
+        dp = [[0 for _ in prices] for _ in range(MAX_TRADES)]
+
+        lowest_price = prices[0]
+        for j in range(1, len(prices)):
+            lowest_price = min(lowest_price, prices[j])
+            dp[0][j] = max(dp[0][j-1], prices[j] - lowest_price)
+
+        for j, price in enumerate(prices):
+            if j < 1:
+                dp[1][j] = 0
+            else:
+                for k in range(j):
+                    dp[1][j] = max(dp[1][j], dp[1][j-1], dp[0][j-k]+price-prices[j-k])
+        return dp[1][-1]
+
+    def maxProfit3(self, prices):
+        n = len(prices)
+        max_price = prices[-1]
+        profits = [0 for _ in range(n)]
+        for i in range(n-2, -1, -1):
+            max_price = max(max_price, prices[i])
+            profits[i] = max(profits[i+1], max_price-prices[i])
+        return profits
 
 
-
-if __name__=='__main__':
-
+if __name__ == "__main__":
     sol = Solution()
+    method = sol.maxProfit3
 
-    cases = [
+    print(sol.maxProfit3([6,1,3,2,4,7]))
 
-        (sol.maxProfit, ([3,3,5,0,0,3,1,4],), 6),
-        (sol.maxProfit, ([6,1,3,2,4,7],), 7),
-
-             ]
-
-    for i, (func, case, expected) in enumerate(cases):
-        ans = func(*case)
-        if ans == expected:
-            print("Case {:d} Passed".format(i + 1))
-        else:
-            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))
+    # cases = [
+    #     (method, ([3,3,5,0,0,3,1,4],), 6),
+    #     (method, ([1,2,3,4,5],), 4),
+    #     (method, ([7,6,4,3,1],), 0),
+    #     (method, ([1,2],), 1),
+    #     (method, ([6,1,3,2,4,7],), 7),
+    # ]
+    #
+    # for i, (func, case, expected) in enumerate(cases):
+    #     ans = func(*case)
+    #     if ans == expected:
+    #         print("Case {:d} Passed".format(i + 1))
+    #     else:
+    #         print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
