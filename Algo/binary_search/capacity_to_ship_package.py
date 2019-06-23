@@ -52,11 +52,62 @@ Note:
 1 <= D <= weights.length <= 50000
 1 <= weights[i] <= 500
 
+Review:
+2019.06.21
 
 """
 
 from typing import List
 
+
 class Solution:
     def shipWithinDays(self, weights: List[int], D: int) -> int:
-        pass
+        l, r, = 1, sum(weights)
+        ans = r
+        while l < r:
+            m = l + (r - l) // 2
+            if self.within_ship_period(weights, m, D):
+                ans = m
+                r = m
+            else:
+                l = m + 1
+        return ans
+
+    @staticmethod
+    def within_ship_period(weights, size, days):
+        """
+        How many days the shipments take for a given size of ship
+        :param weights:
+        :param size:
+        :param days:
+        :return:
+        """
+
+        n, used = 1, 0
+        for weight in weights:
+            if weight > size:
+                return False
+            if used + weight > size:
+                n += 1
+                used = 0
+            used += weight
+        return n <= days
+
+
+if __name__ == '__main__':
+    sol = Solution()
+    method = sol.shipWithinDays
+    # print(sol.within_ship_period([1,2,3,1,1], 2, 4))
+
+    cases = [
+        (method, ([1,2,3,4,5,6,7,8,9,10], 5), 15),
+        (method, ([3,2,2,4,1,4],3), 6),
+        (method, ([1,2,3,1,1],4), 3),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
