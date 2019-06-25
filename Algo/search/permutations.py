@@ -53,14 +53,33 @@ class Solution:
             perms += list(map(lambda x: [num] + x, self.permute_iterative(nums_cp)))
         return perms
 
+    def permute_recursive(self, nums):
+        res = []
+
+        def dfs(curr_nums):
+            if len(curr_nums) <= 1:
+                return [curr_nums]
+
+            ans = []
+            for i, num in enumerate(curr_nums):
+                remainder = curr_nums[:i] + curr_nums[i+1:]
+                for p in dfs(remainder):
+                    ans.append([num] + p)
+            return ans
+
+        res = dfs(nums)
+        return res
+
 
 if __name__ == '__main__':
 
     sol = Solution()
-    method = sol.permute_iterative
+    # method = sol.permute_iterative
+    method = sol.permute_recursive
 
     cases = [
 
+        # (method, ([3], ), [[3]]),
         (method, ([1, 2, 3], ), [[1, 2, 3], [1, 3, 2], [2, 1, 3], [2, 3, 1], [3, 1, 2], [3, 2, 1]]),
 
              ]
