@@ -33,49 +33,22 @@ Output: 42
 
 from Algo.utilities.tree import *
 
+
 class Solution:
     def maxPathSum(self, root: TreeNode) -> int:
-        left, right = -float('inf'), -float('inf')
+        self.maxi = root.val
 
-        if root.left is None and root.right is None:
-            return root.val
-
-        elif root.left is not None and root.right is None:
-            left = self.maxPathSum(root.left)
-            root.left.max = left
-            if root.val < 0:
-                root.max = max(left, root.val)
-            else:
-                if root.left.val < 0:
-                    root.max = root.val
-                else:
-                    root.max = left + root.val
-
-        elif root.right is not None and root.left is None:
-            right = self.maxPathSum(root.right)
-            root.right.max = right
-            if root.val < 0:
-                root.max = max(right, root.val)
-            else:
-                if root.right.val < 0:
-                    root.max = root.val
-                else:
-                    root.max = right + root.val
-        else:
-            left = self.maxPathSum(root.left)
-            right = self.maxPathSum(root.right)
-            if root.val < 0:
-                root.max = max(left, right, root.val)
-            else:
-                if root.left.val >= 0 and root.right.val >= 0:
-                    root.max = left + right + root.val
-                elif root.left.val < 0 and root.right.val < 0:
-                    root.max = max(left, right, root.val)
-                elif root.left.val < 0 <= root.right.val:
-                    root.max = max(left, right + root.val)
-                else:
-                    root.max = max(right, left + root.val)
-        return root.max
+        def dfs(node):
+            if node is None:
+                return 0
+            l = dfs(node.left)
+            r = dfs(node.right)
+            m = max(l, 0) + node.val + max(r, 0)
+            self.maxi = max(m, self.maxi)
+            ret = max(node.val + l, node.val + r, node.val)
+            return ret
+        dfs(root)
+        return self.maxi
 
 
 if __name__ == "__main__":
@@ -87,13 +60,15 @@ if __name__ == "__main__":
     tree3 = deserialize('[-2,null,-3]')
     tree4 = deserialize('[1,-2,-3,1,3,-2,null,-1]')
     tree5 = deserialize('[5,4,8,11,null,13,4,7,2,null,null,null,1]')
+    tree6 = deserialize('[-2,-1,-3]')
 
     cases = [
-        # (method, (tree1, ), 6),
-        # (method, (tree2, ), 42),
-        # (method, (tree3, ), -2),
-        # (method, (tree4, ), 3),
+        (method, (tree1, ), 6),
+        (method, (tree2, ), 42),
+        (method, (tree3, ), -2),
+        (method, (tree4, ), 3),
         (method, (tree5, ), 48),
+        (method, (tree6, ), -1),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
