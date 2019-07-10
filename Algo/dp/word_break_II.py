@@ -46,31 +46,38 @@ Output:
 
 from typing import List
 
+from collections import Counter
+
 
 class Solution:
     def wordBreak(self, s: str, wordDict: List[str]) -> List[str]:
-        wordDict = set(wordDict)
-        partitions = []
         mem = {}
+        wordDict = Counter(wordDict)
 
         def helper(xs):
             if xs in mem:
                 return mem[xs]
 
             res = []
-            if not xs:
-                return
+            if xs == "":
+                return [""]
 
-            for i in range(len(xs) + 1):
+            for i in range(len(xs)+1):
                 if xs[:i] in wordDict:
-                    p = helper(xs[i:])
-                    if p:
-                        for sp in p:
-                            res.append([xs[:i]] + sp)
+                    if i == len(xs):    # special case
+                        res.append(xs[:i])
                     else:
-                        res.append([xs[:i]])
+                        p = helper(xs[i:])
+                        for sp in p:
+                            res.append(xs[:i]+" "+sp)
             mem[xs] = res
             return res
+
+        return helper(s)
+
+    def wordbreak_recursive(self, s, worddict):
+        wordDict = set(worddict)
+        partitions = []
 
         def dfs(curr, xs):
             if not xs:
@@ -78,35 +85,33 @@ class Solution:
                 return
 
             for i in range(len(xs)+1):
-                if xs[:i] in wordDict:
+                if xs[:i] in worddict:
                     curr.append(xs[:i])
                     dfs(curr, xs[i:])
                     curr.pop()
 
-        # dfs([], s)
-        partitions = helper(s)
-        return partitions
+        dfs([], s)
+        return [' '.join(p) for p in partitions]
 
-    def wordbreak_bottom_up(self, s, worddict):
-        worddict = set(worddict)
+    def wordbreak_bottom_up(self, s, wordDict):
+        worddict = Counter(wordDict)
         n = len(s)
         mem = {}
-        if s[0] in worddict:
-            mem[0] = [s[0]]
 
-        for i in range(1, n+1):
-            res = []
+        for i in range(n+1):
             if s[:i] in worddict:
-                res.append(s[:i])
+                mem[i] = [s[:i]]
             for j in range(i-1, -1, -1):
                 if s[j:i] in worddict:
                     if j in mem:
                         p = mem[j]
                         for sp in p:
-                            res.append(sp + s[j:i])
-            if res:
-                mem[i] = res
-        return mem[s]
+                            res = sp + ' ' + s[j:i]
+                            if i in mem:
+                                mem[i].append(res)
+                            else:
+                                mem[i] = [res]
+        return mem.get(n, [])
 
 
 if __name__ == '__main__':
@@ -114,18 +119,19 @@ if __name__ == '__main__':
     sol = Solution()
 
     # print(sol.wordBreak("catsanddog", ["cats", "dog", "sand", "and", "cat"]))
-    print(sol.wordbreak_bottom_up("catsanddog", ["cats", "dog", "sand", "and", "cat"]))
+    # print(sol.wordbreak_bottom_up("catsanddog", ["cats", "dog", "sand", "and", "cat"]))
     # print(sol.wordBreak("pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"]))
-    # cases = [
-    #
-    #     (sol.wordBreak, ("catsanddog", ["cats", "dog", "sand", "and", "cat"]), ["cats and dog", "cat sand dog"]),
-    #     (sol.wordBreak, ("pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"]), ["pine apple pen apple","pineapple pen apple","pine applepen apple"]),
-    #
-    #          ]
-    #
-    # for i, (func, case, expected) in enumerate(cases):
-    #     ans = func(*case)
-    #     if sorted(ans) == sorted(expected):
-    #         print("Case {:d} Passed".format(i + 1))
-    #     else:
-    #         print("Case {:d} Failed; Expected {:s} != Output {:s}".format(i+1, str(expected), str(ans)))
+
+    cases = [
+
+        (sol.wordbreak_bottom_up, ("catsanddog", ["cats", "dog", "sand", "and", "cat"]), ["cats and dog", "cat sand dog"]),
+        (sol.wordbreak_bottom_up, ("pineapplepenapple", ["apple", "pen", "applepen", "pine", "pineapple"]), ["pine apple pen apple","pineapple pen apple","pine applepen apple"]),
+        (sol.wordbreak_bottom_up, ("catsandog", ["cats", "dog", "sand", "and", "cat"]), []),
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if sorted(ans) == sorted(expected):
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != Output {:s}".format(i+1, str(expected), str(ans)))
