@@ -12,6 +12,10 @@ Your algorithm should run in O(n2) complexity.
 
 Follow up: Could you improve it to O(n log n) time complexity?
 
+History:
+2018.06.09
+2019.07.10
+
 """
 
 import bisect
