@@ -32,16 +32,76 @@ from typing import List
 class Solution:
     def maxProfit(self, k: int, prices: List[int]) -> int:
         days = len(prices)
-        profits = [[0 for _ in range(days)] for _ in range(k)]
+        profits = [[0 for _ in range(days)] for _ in range(k+1)]
 
-        for j in range(1, k-1):
+        for j in range(1, k+1):
             for d in range(1, days):
                 profit = max(profits[j][d-1], profits[j-1][d])
-                for i in range(d-1):
-                    profit = max(profit, profits[j-1] + prices[j] - prices[i])
+                for i in range(d):
+                    profit = max(profit, profits[j-1][i] + prices[d] - prices[i])
                 profits[j][d] = profit
         return profits[-1][-1]
 
+    def maxProfit_solution(self, k: int, prices: List[int]) -> int:
+        if k >= int(len(prices) / 2):
+            res = 0
+            for i in range(1, len(prices)):
+                if prices[i] > prices[i - 1]:
+                    res += prices[i] - prices[i - 1]
+            return res
+
+        if len(prices) == 0 or k == 0:
+            return 0
+        buy = [-prices[0] for i in range(k)]
+        sell = [0 for i in range(k)]
+        for p in prices:
+            for i in range(k):
+                if i - 1 >= 0:
+                    buy[i] = max(buy[i], sell[i - 1] - p)
+                else:
+                    buy[i] = max(buy[i], 0 - p)
+                sell[i] = max(sell[i], buy[i] + p)
+        return sell[-1]
+
+    def maxProfit_dp(self, k: int, prices: List[int]) -> int:
+        if not k or not prices:
+            return 0
+
+        if k >= len(prices) / 2:
+            return self.helper(prices)
+
+        local = [[0 for _ in range(len(prices))] for _ in range(k + 1)]
+        dp = [[0 for _ in range(len(prices))] for _ in range(k + 1)]
+
+        for i in range(1, k + 1):
+            for j in range(1, len(prices)):
+                local[i][j] = max(dp[i - 1][j - 1], local[i][j - 1]) + prices[j] - prices[j - 1]
+                dp[i][j] = max(dp[i][j - 1], local[i][j])
+
+        return dp[k][len(prices) - 1]
+
+    def helper(self, prices):
+        res = 0
+        for i in range(len(prices) - 1):
+            if prices[i] < prices[i + 1]:
+                res += prices[i + 1] - prices[i]
+
+        return res
 
 
-if
+if __name__ == "__main__":
+
+    sol = Solution()
+    method = sol.maxProfit_solution
+
+    cases = [
+        # (method, (2, [2,4,1]), 2),
+        (method, (2, [3,2,6,5,0,3]), 7),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
