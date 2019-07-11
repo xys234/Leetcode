@@ -21,6 +21,7 @@ Explanation: The maximum number of envelopes you can Russian doll is 3 ([2,3] =>
 """
 
 from typing import List
+import bisect
 
 
 class Envelop:
@@ -34,7 +35,7 @@ class Envelop:
         if self.w < other.w:
             return True
         elif self.w == other.w:
-            if self.h <= other.h:
+            if self.h >= other.h:
                 return True
             else:
                 return False
@@ -74,6 +75,34 @@ class Solution:
         envelopes.sort()
         n = len(envelopes)
 
+        if n == 0:
+            return 0
+        seq = [envelopes[0].h]
+        for i in range(1, n):
+            h = envelopes[i].h
+            k = bisect.bisect_left(seq, h)
+            if k == len(seq):
+                seq.append(h)
+            else:
+                seq.pop(k)
+                seq.insert(k, h)
+        return len(seq)
+
+    def maxEnvelopes_solution(self, envelopes: List[List[int]]) -> int:
+        envelopes.sort(key=lambda x: (x[0], -x[1]))
+        n = len(envelopes)
+        dp = []
+        res = 0
+
+        for w, h in envelopes:
+            ind = bisect.bisect_left(dp, h)
+            if ind == len(dp):
+                dp.append(h)
+                res += 1
+            else:
+                dp[ind] = h
+        return res
+
 
 if __name__ == '__main__':
 
@@ -81,11 +110,11 @@ if __name__ == '__main__':
     method = sol.maxEnvelopes
 
     cases = [
-        # (method, ([[5,4],[6,7],[6,4],[2,3]],), 3),
-        # (method, ([[4,5],[4,6],[6,7],[2,3],[1,1]],), 4),
-        # (method, ([[46,89],[50,53],[52,68],[72,45],[77,81]],), 3),
+        (method, ([[5,4],[6,7],[6,4],[2,3]],), 3),
+        (method, ([[4,5],[4,6],[6,7],[2,3],[1,1]],), 4),
+        (method, ([[46,89],[50,53],[52,68],[72,45],[77,81]],), 3),
         (method, ([[10,8],[1,12],[6,15],[2,18]],), 2),
-        # (method, ([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]],), 5),
+        (method, ([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]],), 5),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
@@ -94,3 +123,10 @@ if __name__ == '__main__':
             print("Case {:d} Passed".format(i + 1))
         else:
             print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
+
+    # envs = [[10,8],[1,12],[6,15],[2,18]]
+    # envs = [Envelop(e) for e in envs]
+    # envs.sort()
+    #
+    # k = bisect.bisect_left(envs, Envelop([3, 13]))
+    # print(k)
