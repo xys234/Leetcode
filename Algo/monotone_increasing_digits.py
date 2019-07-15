@@ -20,8 +20,11 @@ Note: N is an integer in the range [0, 10^9].
 
 
 2019/02/14: First attempt own solution beat 100% submission
+2019/07/15
 
 """
+
+from collections import deque
 
 
 class Solution:
@@ -51,19 +54,39 @@ class Solution:
             num.pop(0)
         return int(''.join(num))
 
+    def monotoneIncreasingDigits2(self, N: 'int') -> 'int':
+        num = [int(s) for s in str(N)]
+        res = deque([])
+
+        while num:
+            top = num.pop(-1)
+            if num and top < num[-1]:
+                top = 9
+                num[-1] -= 1
+                for k, _ in enumerate(res):
+                    res[k] = 9
+            res.appendleft(top)
+
+        ans, n = 0, len(res)
+        for i, d in enumerate(res):
+            ans += 10**(n-i-1)*d
+        return ans
+
+
 if __name__=='__main__':
 
     sol = Solution()
+    method = sol.monotoneIncreasingDigits2
 
     cases = [
 
-        (sol.monotoneIncreasingDigits, (10,), 9),
-        (sol.monotoneIncreasingDigits, (1234,), 1234),
-        (sol.monotoneIncreasingDigits, (332,), 299),
-        (sol.monotoneIncreasingDigits, (5879,), 5799),
-        (sol.monotoneIncreasingDigits, (5876,), 5799),
-        (sol.monotoneIncreasingDigits, (101,), 99),
-        (sol.monotoneIncreasingDigits, (120,), 119),
+        (method, (10,), 9),
+        (method, (1234,), 1234),
+        (method, (332,), 299),
+        (method, (5879,), 5799),
+        (method, (5876,), 5799),
+        (method, (101,), 99),
+        (method, (120,), 119),
 
 
              ]
