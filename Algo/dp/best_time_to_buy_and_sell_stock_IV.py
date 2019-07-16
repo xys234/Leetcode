@@ -23,6 +23,8 @@ Output: 7
 Explanation: Buy on day 2 (price = 2) and sell on day 3 (price = 6), profit = 6-2 = 4.
              Then buy on day 5 (price = 0) and sell on day 6 (price = 3), profit = 3-0 = 3.
 
+History:
+2019.07.12
 
 """
 
@@ -34,13 +36,29 @@ class Solution:
         days = len(prices)
         profits = [[0 for _ in range(days)] for _ in range(k+1)]
 
+        if k > 2*days:
+            return self.helper(prices)
+
+        if k == 0 or days == 0:
+            return 0
+
         for j in range(1, k+1):
+            max_diff = 0
             for d in range(1, days):
-                profit = max(profits[j][d-1], profits[j-1][d])
-                for i in range(d):
-                    profit = max(profit, profits[j-1][i] + prices[d] - prices[i])
-                profits[j][d] = profit
+                if d == 1:
+                    max_diff = profits[j - 1][0] - prices[0]
+                else:
+                    max_diff = max(max_diff, profits[j - 1][d - 1] - prices[d-1])
+                profits[j][d] = max(profits[j][d-1], max_diff+prices[d])
         return profits[-1][-1]
+
+    def helper(self, prices):
+        res = 0
+        for i in range(len(prices) - 1):
+            if prices[i] < prices[i + 1]:
+                res += prices[i + 1] - prices[i]
+
+        return res
 
     def maxProfit_solution(self, k: int, prices: List[int]) -> int:
         if k >= int(len(prices) / 2):
@@ -80,23 +98,17 @@ class Solution:
 
         return dp[k][len(prices) - 1]
 
-    def helper(self, prices):
-        res = 0
-        for i in range(len(prices) - 1):
-            if prices[i] < prices[i + 1]:
-                res += prices[i + 1] - prices[i]
-
-        return res
-
 
 if __name__ == "__main__":
 
     sol = Solution()
-    method = sol.maxProfit_solution
+    method = sol.maxProfit
 
     cases = [
+        # (method, (1, [1,2]), 1),
         # (method, (2, [2,4,1]), 2),
-        (method, (2, [3,2,6,5,0,3]), 7),
+        # (method, (2, [3,2,6,5,0,3]), 7),
+        (method, (2, [6,1,3,2,4,7]), 7),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
