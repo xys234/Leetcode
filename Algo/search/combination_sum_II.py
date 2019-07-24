@@ -57,6 +57,30 @@ class Solution:
         recurse(tuple(), 0, target)
         return [list(s) for s in res]
 
+    def combinationSum2_v2(self, candidates, target):
+        candidates.sort()
+        res = []
+        n = len(candidates)
+
+        def dfs(curr, curr_sum, d):
+            if sum(curr) == target:
+                res.append(curr[:])
+                return
+            if d == n:
+                return
+
+            for i in range(d, n):
+                if i == d or candidates[i] != candidates[i-1]:
+                    if curr_sum + candidates[i] <= target:
+                        curr.append(candidates[i])
+                        dfs(curr, curr_sum + candidates[i], d + 1)
+                        curr.pop()
+                    else:
+                        break
+
+        dfs([], 0, 0)
+        return res
+
 
 if __name__=='__main__':
 
@@ -67,11 +91,13 @@ if __name__=='__main__':
             return sorted(ans) == sorted(expected)
 
     sol = Solution()
+    method = sol.combinationSum2_v2
 
     cases = [
 
-        (sol.combinationSum2, ([2,3,6,7], 7), [[7]]),
-        (sol.combinationSum2, ([2,3,5], 8), [[3,5]]),
+        (method, ([2,5,2,1,2], 5), [[1,2,2],[5]]),
+        # (method, ([2,3,6,7], 7), [[7]]),
+        # (method, ([2,3,5], 8), [[3,5]]),
 
              ]
 

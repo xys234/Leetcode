@@ -28,7 +28,7 @@ The characters in J are distinct.
 
 """
 
-
+from collections import Counter
 
 class Solution:
     def numJewelsInStones(self, J, S):
@@ -45,6 +45,14 @@ class Solution:
                 num_jewels += 1
 
         return num_jewels
+
+    def numJewelsInStones2(self, J: str, S: str) -> int:
+        count = Counter(S)
+        total = 0
+        for j in J:
+            if j in count:
+                total += count[j]
+        return count
 
 
 if __name__=='__main__':

@@ -63,6 +63,29 @@ class Solution:
         powerset([], nums)
         return results
 
+    def subsets_iterative(self, nums):
+        n = len(nums)
+        res = []
+
+        # find all combinations for a given length within nums
+        def dfs(curr, start_pos, length):
+            if length == 0:
+                res.append([])
+                return
+
+            if len(curr) == length:
+                res.append(curr[:])
+                return
+
+            for i in range(start_pos, n):
+                curr.append(nums[i])
+                dfs(curr, i+1, length)
+                curr.pop()
+
+        for k in range(n+1):
+            dfs([], 0, k)
+        return res
+
 
 if __name__ == '__main__':
 
@@ -70,9 +93,9 @@ if __name__ == '__main__':
 
     cases = [
 
-        (sol.subsets, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
-        (sol.subsets_itertools, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
-        (sol.subsets_recursive, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
+        (sol.subsets_iterative, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
+        # (sol.subsets_itertools, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
+        # (sol.subsets_recursive, ([1,2,3], ), [[3],[1],[2],[1,2,3],[1,3],[2,3],[1,2],[]]),
 
              ]
 

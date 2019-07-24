@@ -1,5 +1,8 @@
 '''
 
+207. Course Scehdule
+
+Medium
 
 There are a total of n courses you have to take, labeled from 0 to n-1.
 
@@ -26,6 +29,8 @@ Note:
 The input prerequisites is a graph represented by a list of edges, not adjacency matrices.
 You may assume that there are no duplicate edges in the input prerequisites.
 
+Solutions:
+
 2019.02.06 Reviewed. Using DFS to find
 
 '''
@@ -46,7 +51,6 @@ class Solution:
             else:
                 adj[e[0]] = [e[1]]
         return adj
-
 
     def is_cycle_util(self, v, adj, visited, recur_stack):
         visited[v] = True
@@ -123,17 +127,44 @@ class Solution:
 
         return not is_cycle
 
+    def canFinish3(self, numCourses, prerequisites):
 
-if __name__=='__main__':
+        g = [[] for _ in range(numCourses)]
+        for p in prerequisites:
+            if p:
+                g[p[1]].append(p[0])
+
+        unvisited, visiting, visited = 0, 1, 2
+
+        def dfs(node, g, status):
+            status[node] = visiting
+            if g[node]:
+                for v in g[node]:
+                    if status[v] == visiting:
+                        return False
+                    elif status[v] == unvisited and not dfs(v, g, status):
+                        return False
+            status[node] = visited
+            return True
+
+        status = [0] * numCourses
+        for n in range(numCourses):
+            if g[n] and status[n] != visited:
+                if not dfs(n, g, status):
+                    return False
+        return True
+
+
+if __name__ == '__main__':
     sol = Solution()
 
     cases = [
-        (sol.canFinish2, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
-        (sol.canFinish2, (2, [[1,0]],), True),
-        (sol.canFinish2, (2, [[0,1],[1,0]],), False),
-        (sol.canFinish2, (3, [[1,0],[2,0]],), True),
-        (sol.canFinish2, (2, [[0,1]],), True),
-        (sol.canFinish2, (3, [[2,0],[2,1]],), True),
+        (sol.canFinish3, (6, [[0,1], [1,2], [2,3], [3,4], [4,5], [5,1]],), False),
+        (sol.canFinish3, (2, [[1,0]],), True),
+        (sol.canFinish3, (2, [[0,1],[1,0]],), False),
+        (sol.canFinish3, (3, [[1,0],[2,0]],), True),
+        (sol.canFinish3, (2, [[0,1]],), True),
+        (sol.canFinish3, (3, [[2,0],[2,1]],), True),
 
              ]
 

@@ -12,10 +12,17 @@ Your algorithm should run in O(n2) complexity.
 
 Follow up: Could you improve it to O(n log n) time complexity?
 
+History:
+2018.06.09
+2019.07.10
+
 """
 
+import bisect
+
+
 class Solution:
-    def lengthOfLIS(self, nums):
+    def lengthOfLIS_dp(self, nums):
         """
         :type nums: List[int]
         :rtype: int
@@ -37,11 +44,40 @@ class Solution:
 
         return max_dp
 
+    def lengthOfLIS(self, nums):
+        # DP with binary search
+
+        n = len(nums)
+        if n == 0:
+            return 0
+
+        seq = [nums[0]]
+        for i in range(1, n):
+            if nums[i] > seq[-1]:
+                seq.append(nums[i])
+            else:
+                k = bisect.bisect_left(seq, nums[i])
+                seq.pop(k)
+                seq.insert(k, nums[i])
+        return len(seq)
+
+
 if __name__ == "__main__":
 
     sol = Solution()
-    # nums = [4,10,4,3,8,9]
-    # nums = [10,22,9,33,21,50,41,60,80]
-    # nums = [2, 2]
-    nums = [10, 9, 2, 5, 3, 7, 101, 18]
-    print(sol.lengthOfLIS(nums))
+    method = sol.lengthOfLIS
+
+    cases = [
+        # (method, ([[5,4],[6,7],[6,4],[2,3]],), 3),
+        # (method, ([[4,5],[4,6],[6,7],[2,3],[1,1]],), 4),
+        # (method, ([[46,89],[50,53],[52,68],[72,45],[77,81]],), 3),
+        (method, ([10, 9, 2, 5, 3, 7, 101, 18],), 4),
+        # (method, ([[2,100],[3,200],[4,300],[5,500],[5,400],[5,250],[6,370],[6,360],[7,380]],), 5),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))

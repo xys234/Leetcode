@@ -41,6 +41,24 @@ class Solution:
         recurse([])
         return res
 
+    def permuteUnique_v2(self, nums):
+        nums.sort()
+        n = len(nums)
+        res = []
+
+        def dfs(nums):
+            if len(nums) == 1:
+                return nums
+
+            for i, num in enumerate(nums):
+                if i == 0 or (i > 1 and nums[i] != nums[i-1]):
+                    nums_local = nums[:]
+                    nums_local.pop(i)
+                    res.append([[nums[i]] + dfs(nums_local)])
+
+        dfs(nums)
+        return res
+
 
 if __name__ == '__main__':
 
@@ -48,7 +66,7 @@ if __name__ == '__main__':
 
     cases = [
 
-        (sol.permuteUnique, ([1, 1, 2], ), [[1, 1, 2], [1, 2, 1], [2, 1, 1]]),
+        (sol.permuteUnique_v2, ([1, 1, 2], ), [[1, 1, 2], [1, 2, 1], [2, 1, 1]]),
 
              ]
 

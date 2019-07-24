@@ -36,6 +36,10 @@ There will be at most 10000 calls to StockSpanner.next per test case.
 There will be at most 150000 calls to StockSpanner.next across all test cases.
 The total time limit for this problem has been reduced by 75% for C++, and 50% for all other languages.
 
+History:
+2019.02
+2019.07
+
 """
 
 
@@ -43,9 +47,8 @@ class StockSpanner:
 
     def __init__(self):
         self.prices = []
-        self.spans = []
 
-    def next(self, price: 'int') -> 'int':
+    def next1(self, price: 'int') -> 'int':
         """
 
         :param price:
@@ -66,6 +69,14 @@ class StockSpanner:
             else:
                 break
         return self.spans[-1]
+
+    def next(self, price: 'int') -> 'int':
+
+        span = 1
+        while self.prices and self.prices[-1][0] <= price:
+            span += self.prices.pop(-1)[1]
+        self.prices.append((price, span))
+        return span
 
 # Your StockSpanner object will be instantiated and called as such:
 # obj = StockSpanner()

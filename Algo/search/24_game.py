@@ -50,10 +50,59 @@ class Solution(object):
                     next_nums.pop()
         return False
 
+    @staticmethod
+    def permutations(iterable, r=None):
+        # permutations('ABCD', 2) --> AB AC AD BA BC BD CA CB CD DA DB DC
+        # permutations(range(3)) --> 012 021 102 120 201 210
+        pool = tuple(iterable)
+        n = len(pool)
+        r = n if r is None else r
+        if r > n:
+            return
+        indices = list(range(n))
+        cycles = list(range(n, n - r, -1))
+        yield tuple(pool[i] for i in indices[:r])
+        while n:
+            for i in reversed(range(r)):
+                cycles[i] -= 1
+                if cycles[i] == 0:
+                    indices[i:] = indices[i + 1:] + indices[i:i + 1]
+                    cycles[i] = n - i
+                else:
+                    j = cycles[i]
+                    indices[i], indices[-j] = indices[-j], indices[i]
+                    yield tuple(pool[i] for i in indices[:r])
+                    break
+            else:
+                return
+
+    def judgePoint24_v2(self, nums):
+        return self.calculate_target(nums, 24)
+
+    def calculate_target(self, nums, target):
+        n = len(nums)
+        if n == 1:
+            return abs(nums[0]-target) < 1e6
+
+        perms = self.permutations(range(len(nums)))
+        res = False
+        for perm in perms:
+            for oper in [add, sub, mul]:
+                new_num = oper(nums[perm[0]], nums[perm[1]])
+                next_nums = [new_num] + nums[2:]
+                res = self.calculate_target(next_nums, target)
+                if res:
+                    return res
+            if not res and nums[perm[1]] != 0:
+                new_num = oper(nums[perm[0]], nums[perm[1]])
+                next_nums = [new_num] + nums[2:]
+                res = self.calculate_target(next_nums, target)
+        return res
+
 
 if __name__ == "__main__":
     sol = Solution()
 
     nums = [4,1,8,7]
-    print(sol.judgePoint24(nums))
-
+    print(sol.permutations(nums))
+    # print(sol.judgePoint24_v2(nums))

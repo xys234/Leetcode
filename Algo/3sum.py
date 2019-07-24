@@ -20,6 +20,7 @@ Time complexity:  O(n^2)
 
 """
 
+
 class Solution(object):
     def threeSum2(self, nums):
         """
@@ -89,11 +90,125 @@ class Solution(object):
                     k -= 1
         return res
 
+    def threeSum4(self, nums):
+
+        n = len(nums)
+        nums.sort()
+        res = []
+        k = n - 1
+        while k >= 0:
+            for t in self.twosum(nums, k, -nums[k]):
+                res.append(t+[nums[k]])
+            while k >= 0 and nums[k] == nums[k-1]:
+                k -= 1
+            k -= 1
+
+        return res
+
+    def twosum(self, nums, end_pos, target):
+        """
+        Find all pairs that add up to target for sub-array nums[:end_pos]
+        :param end_pos:
+        :param target:
+        :return:
+        """
+
+        res = []
+        l, r = 0, end_pos - 1
+        while l < r:
+            if nums[l] + nums[r] == target:
+                res.append([nums[l], nums[r]])
+                l_val = nums[l]
+                while l < r and l_val == nums[l]:
+                    l += 1
+                r_val = nums[r]
+                while l < r and r_val == nums[r]:
+                    r -= 1
+
+            elif nums[l] + nums[r] < target:
+                l += 1
+            else:
+                r -= 1
+        return res
+
+    def threeSum5(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+        instances = {}
+        for n in nums:
+            if n in instances:
+                instances[n] += 1
+            else:
+                instances[n] = 1
+        values = []
+        result = []
+        for n, count in sorted(instances.iteritems()):
+            values.append(n)
+            if n == 0 and count >= 3:
+                result.append([0, 0, 0])
+            elif n != 0 and count >= 2:
+                third = -2 * n
+                if third in instances:
+                    if n < third:
+                        result.append([n, n, third])
+                    else:
+                        result.append([third, n, n])
+        # any sums involving duplicate values were handled above
+        nvalues = len(values)
+        while nvalues >= 3:
+            floor = -(values[nvalues - 1] + values[nvalues - 2])
+            ceiling = -(values[0] + values[1])
+            if floor > ceiling:
+                return []
+            iLeft = nvalues
+            iRight = -1
+            for i in range(nvalues):
+                if values[i] >= floor:
+                    iLeft = i
+                    break
+            for i in range(nvalues - 1, -1, -1):
+                if values[i] <= ceiling:
+                    iRight = i
+                    break
+            if iLeft == 0 and iRight == nvalues - 1:
+                break
+            values = values[iLeft:iRight + 1]
+            nvalues = len(values)
+        if nvalues < 3:
+            return result
+
+        for i in range(nvalues - 2):
+            v1 = values[i]
+            if v1 >= 0:
+                break
+            for j in range(i + 1, nvalues - 1):
+                v2 = values[j]
+                v3 = -(v1 + v2)
+                if v3 <= v2:
+                    break
+                if v3 in instances:
+                    result.append([v1, v2, v3])
+        return result
+
 
 if __name__ == "__main__":
 
-    sol = Solution()
     nums = [-1, 0, 1, 2, -1, -4]
     # nums = [-4, -2, -1]
     # nums = [0, 0, 0, 0]
-    print(sol.threeSum(nums))
+    sol = Solution()
+    method = sol.threeSum4
+
+    cases = [
+        (method, ([-1, 0, 1, 2, -1, -4],), [[-1, 0, 1], [-1, -1, 2]]),
+        (method, ([0,0,0,0],), [[0,0,0]]),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
