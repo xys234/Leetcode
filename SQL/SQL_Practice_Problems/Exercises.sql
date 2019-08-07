@@ -1023,25 +1023,17 @@ FROM PriceChange
 Order by CostChange desc
 
 
---30. History table with start/end date overlap
+--30/31. History table with start/end date overlap
 --There is a product that has an overlapping date ranges in the ProductListPriceHistory table.
 --Find the products with overlapping records, and show the dates that overlap.
 
+--Expected Results
+--CalendarDate	ProductID	TotalRows
+--2013-05-15	746			2
+--2013-05-16	746			2
+--2013-05-17	746			2
+--2013-05-18	746			2
 
-
-WITH Number AS (
-	CREATE SEQUENCE SequenceName  
-    AS int  
-    START WITH 1  
-    INCREMENT BY 1 ;  
-), CalendarDate AS (
-	SELECT CONVERT(DATE, DATEADD(DAY, Num, '2012-01-01')) As CalendarDay
-	FROM Number
-	WHERE CONVERT(DATE, DATEADD(DAY, Num, '2012-01-01')) < '2020-12-31'
-)
-SELECT MAX(CalendarDay)
-FROM CalendarDate
-OPTION (MAXRECURSION 1000000)
 
 
 ;WITH e1(n) AS
@@ -1053,3 +1045,89 @@ OPTION (MAXRECURSION 1000000)
 e2(n) AS (SELECT 1 FROM e1 CROSS JOIN e1 AS b)
 SELECT *
 FROM e2
+
+
+SELECT CalendarDate, ProductID, COUNT(StartDate) AS TotalRows
+FROM Calendar AS c JOIN 
+(
+	SELECT DISTINCT *
+	FROM ProductListPriceHistory
+) AS p ON (
+	c.CalendarDate >= p.StartDate AND c.CalendarDate <= COALESCE(p.EndDate, GETDATE())
+)
+GROUP BY CalendarDate, ProductID
+HAVING COUNT(StartDate) >= 2
+ORDER BY CalendarDate, ProductID
+
+
+--32. Running total of orders in last year
+--For the company dashboard we'd like to calculate the total number of orders, by month, as well
+--as the running total of orders.
+--Limit the rows to within one year of the last order. Sort by calendar month.
+
+
+--Expected Results
+--CalendarMonth			TotalOrders		RunningTotal
+--2013/06 - Jun			13				13
+--2013/07 - Jul			86				99
+--2013/08 - Aug			88				187
+--2013/09 - Sep			89				276
+--2013/10 - Oct			99				375
+--2013/11 - Nov			105				480
+
+
+WITH TotalOrders AS (
+	SELECT CalendarMonth, COUNT(SalesOrderID) As TotalOrders
+	FROM [dbo].[SalesOrderHeader] JOIN Calendar ON (CONVERT(DATE, OrderDate) = CalendarDate)
+	WHERE OrderDate >= DATEADD(YEAR, -1, (SELECT MAX(OrderDate) FROM SalesOrderHeader))
+	GROUP BY CalendarMonth
+)
+SELECT CalendarMonth, TotalOrders, SUM(TotalOrders) OVER (ORDER BY CalendarMonth ROWS UNBOUNDED PRECEDING) AS RunningTotal
+FROM TotalOrders
+ORDER BY CalendarMonth
+
+--33. Total late orders by territory
+--Show the number of total orders, and the number of orders that are late.
+--For this problem, an order is late when the DueDate is before the ShipDate.
+--Group and sort the rows by Territory.
+--Expected Results
+--TerritoryID		TerritoryName	CountryCode		TotalOrders		TotalLateOrders
+--1					Northwest		US				233				78
+--2					Northeast		US				14				7
+--3					Central			US				20				11
+
+WITH OrderbyTerritory AS (
+	SELECT t.TerritoryID, TerritoryName, CountryCode, SalesOrderID, DueDate, ShipDate
+	FROM SalesOrderHeader s JOIN SalesTerritory t ON (s.TerritoryID = t.TerritoryID)
+
+), TotalOrders AS (
+	SELECT TerritoryID, TerritoryName, CountryCode, COUNT(SalesOrderID) AS TotalOrders
+	FROM OrderbyTerritory
+	GROUP BY TerritoryID, TerritoryName, CountryCode
+), LateOrders AS (
+	SELECT TerritoryID, TerritoryName, CountryCode, COUNT(SalesOrderID) AS TotalLateOrders
+	FROM OrderbyTerritory
+	WHERE DueDate < ShipDate
+	GROUP BY TerritoryID, TerritoryName, CountryCode
+)
+SELECT s.TerritoryID, s.TerritoryName, s.CountryCode, TotalOrders, TotalLateOrders
+FROM TotalOrders s JOIN LateOrders l ON (s.TerritoryID = l.TerritoryID)
+ORDER BY s.TerritoryID
+
+--36. Order processing: time in each stage
+--When an order is placed, it goes through different stages, such as processed, readied for pick up,
+--in transit, delivered, etc.
+--How much time does each order spend in the different stages?
+--To figure out which tables to use, take a look at the list of tables in the database. You should be
+--able to figure out the tables to use from the table names.
+--Limit the orders to these SalesOrderIDs:
+--68857
+--70531
+--70421
+--Sort by the SalesOrderID, and then the date/time.
+
+SELECT p.SalesOrderID, p.EventDateTime AS TrackingEventDate, n.EventDateTime AS NextTrackingEventDate
+FROM OrderTracking p JOIN OrderTracking n ON (
+	n.TrackingEventID - p.TrackingEventID = 1
+)
+WHERE p.SalesOrderID IN (68857, 70531, 70421)
