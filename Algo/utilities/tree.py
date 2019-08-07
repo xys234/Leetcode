@@ -8,6 +8,20 @@ class TreeNode:
         return 'TreeNode({})'.format(self.val)
 
 
+def preorder(root):
+    ans = []
+
+    def visit(node, s):
+        if node is None:
+            return
+        s.append(str(node.val))
+        visit(node.left, ans)
+        visit(node.right, ans)
+
+    visit(root, ans)
+    return ans
+
+
 def deserialize(string):
     if string == '{}':
         return None
@@ -52,5 +66,9 @@ def drawtree(root):
 
 
 if __name__ == '__main__':
-    drawtree(deserialize('[1,2,3,null,null,4,null,null,5]'))
-    drawtree(deserialize('[2,1,3,0,7,9,1,2,null,1,0,null,null,8,8,null,null,null,null,7]'))
+    # drawtree(deserialize('[1,2,3,null,null,4,null,null,5]'))
+    # drawtree(deserialize('[2,1,3,0,7,9,1,2,null,1,0,null,null,8,8,null,null,null,null,7]'))
+    tree1 = deserialize('[1,2,5,3,4,6,7]')
+    tree1_str = preorder(tree1)
+    print(tree1_str)
+    assert tree1_str == '[1,2,3,4,5,6,7]'
