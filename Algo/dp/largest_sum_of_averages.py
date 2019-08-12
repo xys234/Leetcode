@@ -27,6 +27,9 @@ Answers within 10^-6 of the correct answer will be accepted as correct.
 
 """
 
+from typing import List
+
+
 class Solution(object):
     def largestSumOfAverages(self, A, K):
         """
@@ -50,6 +53,24 @@ class Solution(object):
                     dp[k][i] = max(dp[k][i], dp[k-1][j] + (_sums[i]-_sums[j])*1.0/(i-j))
         return dp[K][n]
 
+    def largestSumOfAverages_space_optimized(self, A: List[int], K: int) -> float:
+        n = len(A)
+        sums = [0] * n
+        sums[0] = A[0]
+        dp = [0] * n
+
+        dp[0] = A[0]
+        for i in range(1, n):
+            sums[i] = sums[i - 1] + A[i]
+            dp[i] = sums[i] / (i + 1)
+
+        for k in range(1, K):
+            temp = [0] * n
+            for i in range(k, n):
+                for j in range(i):
+                    temp[i] = max(temp[i], dp[j] + (sums[i] - sums[j]) / (i - j))
+            dp = temp[:]
+        return dp[n - 1]
 
 if __name__=='__main__':
 
