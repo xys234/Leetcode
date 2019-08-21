@@ -1,5 +1,7 @@
 """
 
+673.
+Medium
 
 
 """
@@ -12,21 +14,23 @@ class Solution:
         n = len(nums)
         if n == 0:
             return 0
-        dp = [[0] * n for _ in range(n + 1)]
-        dp[1] = [1] * n
+        lengths, counts = [1]*n, [1]*n
 
-        for k in range(2, n + 1):
-            for i in range(k - 1, n):
-                for j in range(k - 2, i):
-                    if nums[i] > nums[j]:
-                        dp[k][i] += dp[k - 1][j]
+        for i in range(1, n):
+            for j in range(i):
+                if nums[i] > nums[j]:
+                    if lengths[j] + 1 > lengths[i]:
+                        lengths[i] = lengths[j] + 1
+                        counts[i] = counts[j]
+                    elif lengths[j] + 1 == lengths[i]:
+                        counts[i] += counts[j]
 
-        max_length = 1
-        for k in range(n, 1, -1):
-            if max(dp[k]) > 0:
-                max_length = k
-                break
-        return max(dp[max_length])
+        max_length = max(lengths)
+        ans = 0
+        for length, count in zip(lengths, counts):
+            if length == max_length:
+                ans += count
+        return ans
 
 
 if __name__ == "__main__":
@@ -36,6 +40,8 @@ if __name__ == "__main__":
 
     cases = [
         (method, ([1,3,5,4,7],), 2),
+        (method, ([1,3,2],), 2),
+        (method, ([1,2,3,1,2,3,1,2,3],), 10),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
