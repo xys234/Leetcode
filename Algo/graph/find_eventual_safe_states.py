@@ -14,52 +14,32 @@ class Solution:
         unvisited, visiting, visited = 0, 1, 2
         n = len(graph)
         status = [unvisited for _ in range(n)]
-        cycle = {}
+        unsafe = {}
 
-        def dfs(node, path, cycle):
+        def dfs(node, path, unsafe):
             status[node] = visiting
             for neighbor in graph[node]:
-                if neighbor not in cycle and status[neighbor] == unvisited:
-                    dfs(neighbor, path + [neighbor], cycle)
-                elif status[neighbor] == visiting:
-                    c = self.scan_path(path, neighbor)
-                    cycle.update(c)
+                if neighbor not in unsafe and status[neighbor] == unvisited:
+                    dfs(neighbor, path + [neighbor], unsafe)
+                elif status[neighbor] == visiting or neighbor in unsafe:
+                    unsafe.update({p:1 for p in path})
                     return
             status[node] = visited
 
         for j in range(n):
-            if status[j] == unvisited and j not in cycle:
-                dfs(j, [j], cycle)
+            if status[j] == unvisited and j not in unsafe:
+                dfs(j, [j], unsafe)
 
-        ans = []
-        for j in range(n):
-            safe = True
-            for neighbor in graph[j]:
-                if neighbor in cycle:
-                    safe = False
-                    break
-            if safe:
-                ans.append(j)
+        ans = [i for i in range(n) if i not in unsafe]
         return ans
-
-    def scan_path(self, path, node):
-        c, ind = {}, -1
-        for i, n in enumerate(path):
-            if n == node:
-                ind = i
-                break
-
-        for i in range(ind, len(path)):
-            c[path[i]] = i
-        return c
 
 
 if __name__ == '__main__':
     sol = Solution()
 
     cases = [
-        # (sol.eventualSafeNodes, ([[1,2],[2,3],[5],[0],[5],[],[]],), [2,4,5,6]),
-        # (sol.eventualSafeNodes, ([[1,2,3,4],[1,2,3,4],[3,4],[4],[]],), [2,3,4]),
+        (sol.eventualSafeNodes, ([[1,2],[2,3],[5],[0],[5],[],[]],), [2,4,5,6]),
+        (sol.eventualSafeNodes, ([[1,2,3,4],[1,2,3,4],[3,4],[4],[]],), [2,3,4]),
         (sol.eventualSafeNodes, ([[1,3,4],[0,8],[2,5,6,9],[8],[7,9],[1,6,7],[7,8],[],[9],[9]],), [7]),
 
              ]
