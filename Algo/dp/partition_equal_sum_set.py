@@ -63,7 +63,7 @@ class Solution:
         if max(nums) > target:
             return False
         nums.sort(reverse=True)
-        return self.dfs(nums, target, 1)
+        return self.dfs(nums, target, 0)
 
     def dfs(self, nums, target, idx):
         if target == 0:
@@ -76,15 +76,39 @@ class Solution:
                     return True
             return False
 
+    memo = {0: True}
+
+    def canPartition3(self, nums: List[int]) -> bool:
+        total = sum(nums)
+        if total % 2 != 0:
+            return False
+
+        target = total / 2
+        ans = self.target_sum(target, nums)
+        ## print(self.memo)
+        return ans
+
+    def target_sum(self, s, nums):
+        if s in self.memo:
+            return self.memo[s]
+        else:
+            for i, num in enumerate(nums):
+                if num <= s and self.target_sum(s - num, nums[:i] + nums[i + 1:]):
+                    self.memo[s] = True
+                    return True
+            self.memo[s] = False
+            return False
+
 
 if __name__ == '__main__':
 
     sol = Solution()
-    method = sol.canPartition
+    method = sol.canPartition_search
 
     cases = [
         (method, ([1, 5, 11, 5],), True),
         (method, ([1, 2, 3, 5],), False),
+        (method, ([1, 2, 5],), False),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
