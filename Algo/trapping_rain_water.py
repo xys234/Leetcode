@@ -10,52 +10,38 @@ from typing import List
 
 class Solution:
     def trap(self, height: List[int]) -> int:
-        # find all the traps
-        dec, inc, stack = False, False, [-float('inf')]
-        for h in height:
-            if not dec and not inc:
-                if h < stack[-1]:
-                    dec = True
-                    stack.append(h)
-                elif h == stack[-1]:
-                    stack.append(h)
-                else:
-                    stack.pop()
-                    stack.append(h)
+        if not height:
+            return 0
 
-            elif
+        dp_right = [-1 for _ in height]
+        left_max, dp_right[-1] = height[0], height[-1]
 
+        for j in range(len(height)-2, -1, -1):
+            dp_right[j] = max(dp_right[j+1], height[j])
 
-
-
-
-    @staticmethod
-    def store_water(group):
-        low = min(group[0], group[-1])
         water = 0
-        for i in range(1, len(group)-1):
-            water += (low-group[i])
+        for i, (h, r) in enumerate(zip(height, dp_right)):
+            if h > left_max:
+                left_max = h
+            water += max(0, min(left_max, r)-h)
         return water
-
 
 
 if __name__ == '__main__':
     sol = Solution()
+    method = sol.trap
 
-    print(sol.store_water([1, 0, 2]))
-    print(sol.store_water([2,1,0,1,3]))
-    print(sol.store_water([3,2,1,2]))
+    cases = [
+        (method, ([0,1,0,2,1,0,1,3,2,1,2,1],), 6),
+        (method, ([2,0,2],), 2),
+        (method, ([5,4,1,2],), 1),
+        (method, ([5,2,1,2,1,5],), 14),
+    ]
 
-    # method = sol.trap
-    #
-    # cases = [
-    #     (method, ([0,1,0,2,1,0,1,3,2,1,2,1],), 6),
-    # ]
-    #
-    # for i, (func, case, expected) in enumerate(cases):
-    #     ans = func(*case)
-    #     if ans == expected:
-    #         print("Case {:d} Passed".format(i + 1))
-    #     else:
-    #         print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
 
