@@ -25,7 +25,7 @@ class Solution:
         stack = [-1]
         maxarea = 0
         for i in range(len(heights)):
-            while stack and heights[stack[-1]] >= heights[i]:
+            while stack and stack[-1] >= 0 and heights[stack[-1]] >= heights[i]:
                 maxarea = max(maxarea, heights[stack.pop()] * (i - stack[-1] - 1))
             stack.append(i)
         while stack[-1] != -1:
@@ -40,7 +40,9 @@ if __name__ == '__main__':
 
     cases = [
         # (method, ([2,1,5,6,2,3],), 10),
-        (method, ([4,6,7],), 12),
+        # (method, ([4,6,7],), 12),
+        # (method, ([3,2,2],), 6),
+        (method, ([1,2,4],), 4),
     ]
 
     for i, (func, case, expected) in enumerate(cases):
