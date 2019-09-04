@@ -58,10 +58,11 @@ if __name__=='__main__':
 
     cases = [
 
-        (sol.sumSubarrayMins, ([1,7],), 9),
-        (sol.sumSubarrayMins, ([6,7,5],), 34),
-        (sol.sumSubarrayMins, ([48, 87, 27],), 264),
-        (sol.sumSubarrayMins, ([3,1,2,4],), 17),
+        # (sol.sumSubarrayMins, ([1,7],), 9),
+        # (sol.sumSubarrayMins, ([6,7,5],), 34),
+        # (sol.sumSubarrayMins, ([48, 87, 27],), 264),
+        # (sol.sumSubarrayMins, ([3,1,2,4],), 17),
+        (sol.sumSubarrayMins, ([4,3,1,4],), 17),
 
              ]
 

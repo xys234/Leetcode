@@ -37,14 +37,26 @@ class Solution:
             stack.append(i)
         return ans
 
+    def dailyTemperatures2(self, T):
+        days = [0]*len(T)
 
-if __name__=='__main__':
+        stack = []
+        for i, t in enumerate(T):
+            while stack and t > stack[-1][1]:
+                top = stack.pop()
+                days[top[0]] = i - top[0]
+            stack.append((i, t))
+        return days
+
+
+if __name__ == '__main__':
 
     sol = Solution()
+    method = sol.dailyTemperatures2
 
     cases = [
 
-        (sol.dailyTemperatures, ([73, 74, 75, 71, 69, 72, 76, 73],), 9),
+        (method, ([73, 74, 75, 71, 69, 72, 76, 73],), [1, 1, 4, 2, 1, 1, 0, 0]),
              ]
 
     for i, (func, case, expected) in enumerate(cases):

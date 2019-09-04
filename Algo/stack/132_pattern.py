@@ -53,19 +53,32 @@ class Solution:
 
         return False
 
-if __name__=='__main__':
+    def find132pattern3(self, nums):
+        stack, third = [], -float('inf')
+        for n in reversed(nums):
+            if n < third:
+                return True
+            while stack and n > stack[-1]:    # decreasing stack.
+                third = stack.pop()
+            stack.append(n)
+        return False
+
+
+if __name__ == '__main__':
 
     sol = Solution()
+    method = sol.find132pattern3
 
     cases = [
 
-        # (sol.find132pattern_fast, ([1,2,3,4],), False),
-        # (sol.find132pattern_fast, ([3,1,4,2],), True),
-        # (sol.find132pattern_fast, ([3,5,0,3,4],), True),
-        # (sol.find132pattern_fast, ([-2,1,1,-2,1,1],), False),
-        # (sol.find132pattern_fast, ([-2,1,2,-2,1,2],), True),
-        # (sol.find132pattern_fast, ([2,4,3,1],), True),
-        (sol.find132pattern_fast, ([10,12,6,8,3,11],), True),
+        (method, ([1,2,3,4],), False),
+        (method, ([3,3,4,2],), False),
+        (method, ([3,1,4,2],), True),
+        (method, ([3,5,0,3,4],), True),
+        (method, ([-2,1,1,-2,1,1],), False),
+        (method, ([-2,1,2,-2,1,2],), True),
+        (method, ([2,4,3,1],), True),
+        (method, ([10,12,6,8,3,11],), True),
 
              ]
 
