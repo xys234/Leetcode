@@ -81,6 +81,23 @@ class Solution:
         dfs([], 0, 0)
         return res
 
+    def combinationSum2_v3(self, candidates, target):
+        ans = []
+        candidates.sort()
+
+        def dfs(curr, t, start):
+            if t == 0:
+                ans.append(curr[:])
+
+            for i in range(start, len(candidates)):
+                if candidates[i] > t:
+                    break
+                if i == start or candidates[i-1] != candidates[i]:
+                    dfs(curr + [candidates[i]], t - candidates[i], i+1)
+
+        dfs([], target, 0)
+        return ans
+
 
 if __name__=='__main__':
 
@@ -91,13 +108,13 @@ if __name__=='__main__':
             return sorted(ans) == sorted(expected)
 
     sol = Solution()
-    method = sol.combinationSum2_v2
+    method = sol.combinationSum2_v3
 
     cases = [
 
         (method, ([2,5,2,1,2], 5), [[1,2,2],[5]]),
-        # (method, ([2,3,6,7], 7), [[7]]),
-        # (method, ([2,3,5], 8), [[3,5]]),
+        (method, ([2,3,6,7], 7), [[7]]),
+        (method, ([2,3,5], 8), [[3,5]]),
 
              ]
 

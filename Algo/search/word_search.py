@@ -60,10 +60,46 @@ class Solution:
         visited[x][y] = False
         return res
 
+    def exist2(self, board, word):
+        m, n, l = len(board), len(board[0]), len(word)
+        if m*n < l:
+            return False
+
+        visited = [[False]*n for _ in range(m)]
+
+        def dfs(x, y, curr, visited):
+            visited[x][y] = True
+            if curr == word:
+                return True
+
+            if x + 1 < m and not visited[x+1][y]:
+                if dfs(x+1, y, curr+board[x+1][y], visited):
+                    return True
+
+            if x - 1 >= 0 and not visited[x-1][y]:
+                if dfs(x-1, y, curr+board[x-1][y], visited):
+                    return True
+
+            if y + 1 < n and not visited[x][y+1]:
+                if dfs(x, y+1, curr+board[x][y+1], visited):
+                    return True
+
+            if y - 1 >= 0 and not visited[x][y-1]:
+                if dfs(x, y-1, curr+board[x][y-1], visited):
+                    return True
+            visited[x][y] = False
+            return False
+
+        for i in range(m):
+            for j in range(n):
+                if dfs(i, j, board[i][j], visited):
+                    return True
+        return False
+
 
 if __name__ == '__main__':
     sol = Solution()
-    method = sol.exist
+    method = sol.exist2
 
     cases = [
 

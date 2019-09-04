@@ -57,10 +57,29 @@ class Solution:
             return
         self.inorder(root.right, elems, k)
 
+    def kthSmallest2(self, root, k):
+        arr = []
+
+        def inorder_traversal(r):
+            if not r:
+                return False
+
+            if inorder_traversal(r.left):
+                return True
+            arr.append(r.val)
+            if len(arr) == k:
+                return True
+            if inorder_traversal(r.right):
+                return True
+            return False
+
+        inorder_traversal(root)
+        return arr[-1]
+
 
 if __name__ == "__main__":
     sol = Solution()
-    method = sol.kthSmallest
+    method = sol.kthSmallest2
 
     tree1 = deserialize('[3,1,4,null,2]')
     tree2 = deserialize('[5,3,6,2,4,null,null,1]')

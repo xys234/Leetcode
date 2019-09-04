@@ -40,15 +40,29 @@ class Solution:
         from itertools import combinations
         return [list(c) for c in combinations(list(range(1, n+1)), k)]
 
+    def combine2(self, n, k):
+        ans = []
+
+        def dfs(start, curr_k, curr):
+            if curr_k == k:
+                ans.append(curr[:])
+                return
+
+            for i in range(start, n+1):
+                dfs(i+1, curr_k+1, curr+[i])
+
+        dfs(1, 0, [])
+        return ans
+
 
 if __name__ == '__main__':
 
     sol = Solution()
+    method = sol.combine2
 
     cases = [
 
-        (sol.combine, (4, 2), [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]),
-        (sol.combine_itertools, (4, 2), [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]),
+        (method, (4, 2), [[2,4],[3,4],[2,3],[1,2],[1,3],[1,4]]),
 
              ]
 

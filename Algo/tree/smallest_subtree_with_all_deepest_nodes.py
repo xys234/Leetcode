@@ -20,6 +20,7 @@ Output: [2,7,4]
 """
 
 from collections import namedtuple
+from Algo.utilities.tree import *
 
 
 class Solution(object):
@@ -40,3 +41,58 @@ class Solution(object):
             return Result(node, L.dist + 1)
 
         return dfs(root).node
+
+    def subtreeWithAllDeepest(self, root):
+
+        def height(node):
+            if not node:
+                return 0
+
+            l = height(node.left)
+            r = height(node.right)
+            node.height = max(l, r) + 1
+            return node.height
+
+        def helper(node):
+            if not node:
+                return
+
+            left = helper(node.left)
+            right = helper(node.right)
+
+            if not left and not right:
+                return None
+            elif left and not right:
+                return left
+            elif right and not left:
+                return right
+            else:
+                if node.left.height > node.right.height:
+                    return node.left
+                elif node.left.height < node.right.height:
+                    return node.right
+                else:
+                    return node
+
+        height(root)
+        return helper(root)
+
+
+if __name__ == "__main__":
+            sol = Solution()
+            method = sol.subtreeWithAllDeepest
+
+            tree1 = deserialize('[3,1,4,null,2]')
+            tree2 = deserialize('[5,3,6,2,4,null,null,1]')
+
+            cases = [
+                (method, (tree1,), 2),
+                (method, (tree2,), 3),
+            ]
+
+            for i, (func, case, expected) in enumerate(cases):
+                ans = func(*case)
+                if ans == expected:
+                    print("Case {:d} Passed".format(i + 1))
+                else:
+                    print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))

@@ -86,6 +86,20 @@ class Solution:
             root.right = self.insertIntoBST_recursive(root.right, val)
         return root
 
+    def insertIntoBST2(self, root, val):
+
+        if val < root.val:
+            if root.left:
+                self.insertIntoBST2(root.left, val)
+            else:
+                root.left = TreeNode(val)
+        else:
+            if root.right:
+                self.insertIntoBST2(root.right, val)
+            else:
+                root.right = TreeNode(val)
+        return root
+
 
 def inorder(root: 'TreeNode', seq: 'list'):
     if not root:
@@ -108,13 +122,12 @@ if __name__ == '__main__':
     # n2.left, n2.right = None, n5
 
     sol = Solution()
+    method = sol.insertIntoBST2
 
     cases = [
 
-        # (sol.insertIntoBST, (n4, 5), [0, 1, 2, 3, 4, 5, 7]),
-
-        (sol.insertIntoBST_recursive, (n4, 0), [0, 1, 2, 3, 4, 7]),
-        (sol.insertIntoBST_recursive, (n4, 5), [0, 1, 2, 3, 4, 5, 7]),
+        (method, (n4, 0), [0, 1, 2, 3, 4, 7]),
+        (method, (n4, 5), [0, 1, 2, 3, 4, 5, 7]),
 
     ]
 

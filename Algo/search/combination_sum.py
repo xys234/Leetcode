@@ -79,6 +79,23 @@ class Solution:
         dfs([], target, 0)
         return res
 
+    def combinationSum3(self, candidates, target):
+        ans = []
+        candidates.sort()
+
+        def dfs(curr, t, start):
+            if t == 0:
+                ans.append(curr[:])
+
+            for i in range(start, len(candidates)):
+                if candidates[i] > t:
+                    break
+                if i == 0 or candidates[i-1] != candidates[i]:
+                    dfs(curr+[candidates[i]], t-candidates[i], i)
+
+        dfs([], target, 0)
+        return ans
+
 
 if __name__=='__main__':
 
@@ -89,15 +106,14 @@ if __name__=='__main__':
             return sorted(ans) == sorted(expected)
 
     sol = Solution()
+    method = sol.combinationSum3
 
     cases = [
 
-        (sol.combinationSum2, ([2,3,6,7], 7), [[7],[2,2,3]]),
-        (sol.combinationSum2, ([2,3,5], 8), [[2,2,2,2],[2,3,3],[3,5]]),
+        (method, ([2,3,6,7], 7), [[7],[2,2,3]]),
+        (method, ([2,3,5], 8), [[2,2,2,2],[2,3,3],[3,5]]),
 
              ]
-
-
 
     for i, (func, case, expected) in enumerate(cases):
         ans = func(*case)

@@ -40,6 +40,22 @@ class Solution:
         recurse([], 1, n)
         return res
 
+    def combinationSum3_v2(self, k, n):
+        ans = []
+
+        def dfs(start, curr_k, curr_target, curr):
+            if curr_k == k and curr_target == 0:
+                ans.append(curr[:])
+
+            for i in range(start, 10):
+                if i > curr_target:
+                    break
+
+                dfs(i+1, curr_k-1, curr_target-i, curr+[i])
+
+        dfs(1, 0, n, [])
+        return ans
+
 
 if __name__ == '__main__':
 
