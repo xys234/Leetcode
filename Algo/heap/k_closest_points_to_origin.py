@@ -77,6 +77,9 @@ class Solution:
     def dist(self, point):
         return sqrt(point[0]**2 + point[1]**2)
 
+    def kClosest2(self, points: List[List[int]], K: int) -> List[List[int]]:
+        pass
+
 
 if __name__ == '__main__':
     sol = Solution()

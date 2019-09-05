@@ -25,6 +25,7 @@ A is a mountain, as defined above.
 
 """
 
+
 class Solution(object):
     def peakIndexInMountainArray(self, A):
         """
@@ -43,7 +44,10 @@ class Solution(object):
                 r = mid - 1
         return l
 
-if __name__=='__main__':
+    def peakIndexInMountainArray2(self, A):
+        pass
+
+if __name__ == '__main__':
 
     sol = Solution()
 

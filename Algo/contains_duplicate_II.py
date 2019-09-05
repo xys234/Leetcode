@@ -53,14 +53,23 @@ class Solution:
                     num_index[nums[i]] = i
         return False
 
+    def containsNearbyDuplicate3(self, nums, k):
+        n = len(nums)
+        for i in range(n):
+            for j in range(i+1, min(i+k+1, n)):
+                if nums[i] == nums[j]:
+                    return True
+        return False
 
-if __name__=='__main__':
+
+if __name__ == '__main__':
     sol = Solution()
+    method = sol.containsNearbyDuplicate3
 
     cases = [
-        (sol.containsNearbyDuplicate2, ([1, 2, 3, 1], 3), True),
-        (sol.containsNearbyDuplicate2, ([1,0,1,1], 1), True),
-        (sol.containsNearbyDuplicate2, ([1,2,3,1,2,3], 2), False),
+        (method, ([1, 2, 3, 1], 3), True),
+        (method, ([1,0,1,1], 1), True),
+        (method, ([1,2,3,1,2,3], 2), False),
 
              ]
 

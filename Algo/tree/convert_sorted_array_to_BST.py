@@ -57,6 +57,19 @@ class Solution:
 
         return helper(0, n-1)
 
+    def sortedArrayToBST2(self, nums):
+        if not nums:
+            return None
+
+        if len(nums) == 1:
+            return TreeNode(nums[0])
+
+        mid = len(nums) // 2
+        root = TreeNode(nums[mid])
+        root.left = self.sortedArrayToBST2(nums[:mid])
+        root.right = self.sortedArrayToBST2(nums[mid+1:])
+        return root
+
 
 def inorder(root: 'TreeNode', seq: 'list'):
     if not root:
@@ -69,12 +82,13 @@ def inorder(root: 'TreeNode', seq: 'list'):
 if __name__ == '__main__':
 
     sol = Solution()
+    method = sol.sortedArrayToBST2
 
     cases = [
 
 
-        (sol.sortedArrayToBST, ([-10, -3, 0, 5, 9], ), [-10, -3, 0, 5, 9]),
-        (sol.sortedArrayToBST, ([-12, -10, -3, 0, 5, 9], ), [-12, -10, -3, 0, 5, 9]),
+        (method, ([-10, -3, 0, 5, 9], ), [-10, -3, 0, 5, 9]),
+        (method, ([-12, -10, -3, 0, 5, 9], ), [-12, -10, -3, 0, 5, 9]),
 
     ]
 

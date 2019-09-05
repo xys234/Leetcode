@@ -28,6 +28,13 @@ from operator import add, sub, mul, truediv
 
 
 class Solution:
+    operators = {
+        '+': add,
+        '-': sub,
+        '*': mul,
+        '/': truediv
+    }
+
     def diffWaysToCompute(self, input):
         """
 
@@ -108,18 +115,45 @@ class Solution:
         else:
             return [int(input)]
 
+    def diffWaysToCompute2(self, input):
+        ops = self.find_operators(input)
+        if len(ops) == 0:
+            return [int(input)]
+
+        res = []
+        for ind, op in ops.items():
+            s1, s2 = input[:ind], input[ind+1:]
+            res1 = self.diffWaysToCompute(s1)
+            res2 = self.diffWaysToCompute(s2)
+            for r1 in res1:
+                for r2 in res2:
+                    if op == truediv and r2 == 0:
+                        continue
+                    res.append(op(r1, r2))
+        return res
+
+    def find_operators(self, s):
+        res = {}
+        for i, c in enumerate(s):
+            if i == 0 and c == '-':
+                continue
+            if c in self.operators:
+                res[i] = self.operators[c]
+        return res
+
 
 if __name__ == '__main__':
 
     sol = Solution()
+    method = sol.diffWaysToCompute2
 
     cases = [
 
-        (sol.diffWaysToCompute, ("2-1-1", ), [0, 2]),
-        (sol.diffWaysToCompute, ("2*3-4*5", ), [-34, -14, -10, -10, 10]),
-        (sol.diffWaysToCompute, ("-2+3-2", ), [-1, -1]),
-        (sol.diffWaysToCompute, ("0", ), [0]),
-        (sol.diffWaysToCompute, ("11", ), [11]),
+        (method, ("2-1-1", ), [0, 2]),
+        (method, ("2*3-4*5", ), [-34, -14, -10, -10, 10]),
+        (method, ("-2+3-2", ), [-1, -1]),
+        (method, ("0", ), [0]),
+        (method, ("11", ), [11]),
 
              ]
 

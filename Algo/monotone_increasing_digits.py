@@ -72,11 +72,31 @@ class Solution:
             ans += 10**(n-i-1)*d
         return ans
 
+    def monotoneIncreasingDigits3(self, N: 'int') -> 'int':
+        digits = deque([])
+        n = N
+        while n > 0:
+            mod = n % 10
+            digits.appendleft(mod)
+            n = n // 10
 
-if __name__=='__main__':
+        for i in range(len(digits)-1, 0, -1):
+            if digits[i-1] > digits[i]:
+                digits[i] = 9
+                for j in range(i+1, len(digits)):
+                    digits[j] = 9
+                digits[i-1] -= 1
+
+        while digits[0] == 0:
+            digits.popleft()
+
+        return int(''.join([str(n) for n in digits]))
+
+
+if __name__ == '__main__':
 
     sol = Solution()
-    method = sol.monotoneIncreasingDigits2
+    method = sol.monotoneIncreasingDigits3
 
     cases = [
 

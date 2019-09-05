@@ -35,3 +35,22 @@ class Solution:
         get_leaf_nodes(root1, leaves1)
         get_leaf_nodes(root2, leaves2)
         return leaves1 == leaves2
+
+    def leafSimilar2(self, root1, root2):
+        seq1, seq2 = [], []
+
+        def inorder_traversal(root, leaves):
+            if not root:
+                return
+
+            inorder_traversal(root.left, leaves)
+            if not root.left and not root.right:
+                leaves.append(root.val)
+            inorder_traversal(root.right, leaves)
+
+        inorder_traversal(root1, seq1)
+        inorder_traversal(root2, seq2)
+
+        return seq1 == seq2
+
+
