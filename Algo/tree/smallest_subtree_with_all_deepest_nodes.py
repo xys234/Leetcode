@@ -61,16 +61,16 @@ class Solution(object):
             right = helper(node.right)
 
             if not left and not right:
-                return None
+                return node
             elif left and not right:
                 return left
             elif right and not left:
                 return right
             else:
                 if node.left.height > node.right.height:
-                    return node.left
+                    return left
                 elif node.left.height < node.right.height:
-                    return node.right
+                    return right
                 else:
                     return node
 

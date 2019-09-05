@@ -23,6 +23,7 @@ class TreeNode(object):
         self.left = None
         self.right = None
 
+
 class BSTIterator(object):
     def __init__(self, root):
         """
@@ -65,7 +66,7 @@ class BSTIterator2(object):
         if self.__node or self.__s:
             return True
         else:
-            return  False
+            return False
 
     def next(self):
         """

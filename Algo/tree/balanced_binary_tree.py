@@ -37,6 +37,9 @@ Return false.
 
 """
 
+from collections import namedtuple
+
+Result = namedtuple('Result', ('balanced', 'height'))
 
 # Definition for a binary tree node.
 class TreeNode:
@@ -60,3 +63,20 @@ class Solution:
         if left_height < 0 or right_height < 0 or abs(left_height-right_height) > 1:
             return -1
         return max(left_height, right_height) + 1
+
+    def isBalanced2(self, root):
+        def dfs(root):
+            if not root:
+                return Result(True, 0)
+
+            l = dfs(root.left)
+            r = dfs(root.right)
+            h = max(l.height, r.height)+1
+
+            if not l.balanced or not r.balanced or abs(l.height-r.height) > 1:
+                return Result(False, h)
+            else:
+                return Result(True, h)
+
+        return dfs(root).balanced
+
