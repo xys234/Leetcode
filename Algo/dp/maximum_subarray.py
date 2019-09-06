@@ -44,6 +44,6 @@ class Solution:
 if __name__ == "__main__":
 
     sol = Solution()
-    # nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
-    nums = [1]
+    nums = [-2, 1, -3, 4, -1, 2, 1, -5, 4]
+    # nums = [1]
     print(sol.maxSubArray(nums))

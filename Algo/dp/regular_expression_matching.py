@@ -70,5 +70,5 @@ class Solution:
                     m = False
                     if s[i-1] == p[j-2] or p[j-2] == '.':
                         m = dp[i-1][j]
-                    dp[i][j] = dp[i][j-2] or m
+                    dp[i][j] = dp[i][j-2] or m          # dp[i][j-2] means the wildcard matches empty string
         return dp[-1][-1]

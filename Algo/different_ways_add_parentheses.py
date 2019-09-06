@@ -123,8 +123,8 @@ class Solution:
         res = []
         for ind, op in ops.items():
             s1, s2 = input[:ind], input[ind+1:]
-            res1 = self.diffWaysToCompute(s1)
-            res2 = self.diffWaysToCompute(s2)
+            res1 = self.diffWaysToCompute2(s1)
+            res2 = self.diffWaysToCompute2(s2)
             for r1 in res1:
                 for r2 in res2:
                     if op == truediv and r2 == 0:
