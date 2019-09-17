@@ -95,15 +95,53 @@ class Solution:
 
         return count
 
+    def numIslands3(self, grid: List[List[str]]) -> int:
+        m = len(grid)
+        if m > 0:
+            n = len(grid[0])
+        else:
+            return 0
+
+        def dfs(grid, i, j):
+            if grid[i][j] != '0':
+                grid[i][j] = '0'
+
+                for direction in self.directions(grid, i, j):
+                    dfs(grid, direction[0], direction[1])
+
+        island = 0
+        for i in range(m):
+            for j in range(n):
+                if grid[i][j] == '1':
+                    island += 1
+                    dfs(grid, i, j)
+        return island
+
+    def directions(self, grid, p, q):
+        k = len(grid)
+        l = len(grid[0])
+        d = []
+
+        if p + 1 < k and grid[p + 1][q] == '1':
+            d.append((p + 1, q))
+        if p - 1 >= 0 and grid[p - 1][q] == '1':
+            d.append((p - 1, q))
+        if q + 1 < l and grid[p][q + 1] == '1':
+            d.append((p, q+1))
+        if q - 1 >= 0 and grid[p][q - 1] == '1':
+            d.append((p, q-1))
+        return d
+
 
 if __name__ == '__main__':
 
         sol = Solution()
+        method = sol.numIslands3
 
         cases = [
 
-            (sol.numIslands, (['11110', '11010', '11000', '00000'],), 1),
-            (sol.numIslands, (['11000', '11000', '00100', '00011'],), 3),
+            (method, ([["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]],), 1),
+            # (method, (['11000', '11000', '00100', '00011'],), 3),
 
         ]
 
