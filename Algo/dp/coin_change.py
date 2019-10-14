@@ -84,11 +84,33 @@ class Solution:
 
         return self.res if self.res < 2 ** 31 - 1 else -1
 
+    def coinChange2(self, coins, amount):
+        if amount == 0:
+            return 0
+
+        if amount < min(coins):
+            return -1
+
+        dp = [-1]*(amount+1)
+        dp[0] = 0
+
+        for coin in coins:
+            dp[coin] = 1
+
+        for i in range(1, amount+1):
+            for coin in coins:
+                if i >= coin and dp[i-coin] > 0:
+                    if dp[i] < 0:
+                        dp[i] = dp[i-coin]+1
+                    else:
+                        dp[i] = min(dp[i], dp[i-coin]+1)
+        return dp[-1]
+
 
 if __name__ == '__main__':
 
     sol = Solution()
-    method = sol.coinChange_solution_topdown
+    method = sol.coinChange2
 
     cases = [
         (method, ([1, 2, 5], 11), 3),
