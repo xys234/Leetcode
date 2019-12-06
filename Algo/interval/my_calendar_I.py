@@ -32,6 +32,8 @@ In calls to MyCalendar.book(start, end), start and end are integers in the range
 
 """
 
+import bisect
+
 
 class MyCalendar:
 
@@ -104,6 +106,35 @@ class MyCalendar:
             return False
 
 
+class MyCalendar2:
+    def __init__(self):
+        self.events = []
+
+    def book(self, s, e):
+        if not self.events:
+            self.events.append((s, e))
+            return True
+
+        ind = bisect.bisect_right(self.events, (s, e))
+        if ind == 0:
+            if e > self.events[ind+1][0]:
+                return False
+            else:
+                self.events.insert(ind, (s, e))
+                return True
+        elif ind == len(self.events):
+            if s < self.events[ind-1][1]:
+                return False
+            else:
+                self.events.insert(ind, (s, e))
+                return True
+        else:
+            if e > self.events[ind + 1][0] and s < self.events[ind-1][1]:
+                self.events.insert(ind, (s, e))
+                return True
+            return False
+
+
 # Your MyCalendar object will be instantiated and called as such:
 # obj = MyCalendar()
 # param_1 = obj.book(start,end)
@@ -111,8 +142,8 @@ class MyCalendar:
 
 if __name__ == '__main__':
 
-    obj = MyCalendar()
-    # case = [[10, 20], [15, 25], [20, 30]]
-    case = [[47,50],[33,41],[39,45],[33,42],[25,32],[26,35],[19,25],[3,8],[8,13],[18,27]]
+    obj = MyCalendar2()
+    case = [[10, 20], [15, 25], [20, 30]]
+    # case = [[47,50],[33,41],[39,45],[33,42],[25,32],[26,35],[19,25],[3,8],[8,13],[18,27]]
     for e in case:
         print(obj.book(e[0], e[1]))
