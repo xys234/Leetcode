@@ -28,6 +28,8 @@ Answers within 10^-6 of the correct answer will be accepted as correct.
 """
 
 from typing import List
+from itertools import accumulate
+import operator
 
 
 class Solution(object):
@@ -72,14 +74,33 @@ class Solution(object):
             dp = temp[:]
         return dp[n - 1]
 
+    def largestSumOfAverages2(self, A, K):
+        n = len(A)
+        psum = [0] + list(accumulate(A, operator.add))
+
+        def avg(s, t):
+            return (psum[t] - psum[s-1]) / (t-s+1)
+
+        dp = [[0 for _ in range(K+1)] for _ in range(n+1)]
+        for i in range(1, n+1):
+            dp[i][1] = avg(1, i)
+
+        for k in range(2, K+1):
+            for i in range(k, n+1):
+                for j in range(1, i):
+                    dp[i][k] = max(dp[i][k], dp[j][k-1]+avg(j+1, i))
+
+        return dp[-1][-1]
+
+
 if __name__=='__main__':
 
     sol = Solution()
 
     cases = [
 
-        # (sol.largestSumOfAverages, ([9,1,2,3,9], 3), 20),
-        (sol.largestSumOfAverages, ([1,2,3,4,5,6,7],4), 20.5),
+        (sol.largestSumOfAverages2, ([9,1,2,3,9], 3), 20),
+        (sol.largestSumOfAverages2, ([1,2,3,4,5,6,7],4), 20.5),
 
              ]
 

@@ -29,3 +29,28 @@ Output: 0
 
 
 """
+
+
+class Solution:
+    def palindromePartition(self, s: str, k: int) -> int:
+        pass
+
+
+if __name__=='__main__':
+
+    sol = Solution()
+
+    cases = [
+
+        (sol.palindromePartition, ("abc", 2), 1),
+        (sol.palindromePartition, ("aabbc",3), 0),
+        (sol.palindromePartition, ("leetcode",8), 0),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i+1, str(expected), str(ans)))
