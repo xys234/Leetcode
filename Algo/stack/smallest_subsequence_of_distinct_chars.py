@@ -34,10 +34,10 @@ class Solution:
 
         for c in text:
             count[c] -= 1
-            while stack and c < stack[-1] and count[stack[-1]] > 0:
+            while stack and c < stack[-1] and count[stack[-1]] > 0 and c not in saved:
                 saved.pop(stack[-1])
                 stack.pop(-1)
-            while c not in saved:
+            if c not in saved:
                 stack.append(c)
                 saved[c] = 1
 
@@ -49,12 +49,13 @@ if __name__ == '__main__':
     method = sol.smallestSubsequence
 
     cases = [
-        # (method, ("cdadabcc",), "adbc"),
-        # (method, ("abcd",), "abcd"),
-        # (method, ("ecbacba",), "eacb"),
-        # (method, ("leetcode",), "letcod"),
+        (method, ("cdadabcc",), "adbc"),
+        (method, ("abcd",), "abcd"),
+        (method, ("ecbacba",), "eacb"),
+        (method, ("leetcode",), "letcod"),
+        (method, ("abcacb",), "abc"),
         (method, ("cbaacabcaaccaacaba",), "abc"),
-        # (method, ("cbaacabcaaccaacababa",), "abc"),
+        (method, ("cbaacabcaaccaacababa",), "abc"),
 
              ]
 
