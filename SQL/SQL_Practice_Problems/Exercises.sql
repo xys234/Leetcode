@@ -1126,8 +1126,127 @@ ORDER BY s.TerritoryID
 --70421
 --Sort by the SalesOrderID, and then the date/time.
 
-SELECT p.SalesOrderID, p.EventDateTime AS TrackingEventDate, n.EventDateTime AS NextTrackingEventDate
-FROM OrderTracking p JOIN OrderTracking n ON (
-	n.TrackingEventID - p.TrackingEventID = 1
+WITH TrackingHistory AS (
+	SELECT SalesOrderID, EventDateTime AS CurrentEvent, TrackingEventID AS CurrentEventID,
+	LAG(EventDateTime) OVER (PARTITION BY SalesOrderID ORDER BY EventDateTime) AS PrevEvent
+	FROM OrderTracking 
+	WHERE SalesOrderID IN (68857, 70531, 70421) 
 )
-WHERE p.SalesOrderID IN (68857, 70531, 70421)
+SELECT SalesOrderID, EventName, DATEDIFF(HOUR, PrevEvent, CurrentEvent) AS HoursTaken 
+FROM TrackingHistory T JOIN [TrackingEvent] E ON (
+	T.CurrentEventID = E.TrackingEventID
+)
+WHERE PrevEvent IS NOT NULL
+
+
+--37. Order processing: time in each stage, part 2
+--Now we want to show the time spent in each stage of order processing. But instead of showing
+--information for specific orders, we want to show aggregate data, by online vs offline orders.
+--Sort first by OnlineOfflineStatus, and then TrackingEventID.
+
+WITH TrackingHistory AS (
+	SELECT SalesOrderID, EventDateTime AS CurrentEvent, TrackingEventID AS CurrentEventID,
+	LEAD(EventDateTime, 1) OVER (PARTITION BY SalesOrderID ORDER BY EventDateTime) AS NextEvent
+	FROM OrderTracking 
+), EventHistory AS (
+SELECT T.SalesOrderID, EventName, (
+	CASE WHEN OnlineOrderFlag = 0 THEN 'Offline'
+	ELSE 'Online'
+	END
+) AS OrderCategory, 
+
+DATEDIFF(HOUR, CurrentEvent, NextEvent)*1.0 AS HoursTaken 
+	FROM TrackingHistory T JOIN [TrackingEvent] E ON (
+		T.CurrentEventID = E.TrackingEventID
+	) JOIN SalesOrderHeader H ON (
+		T.SalesOrderID = H.SalesOrderID
+	)
+)
+SELECT OrderCategory, EventName, AVG(HoursTaken) AS HoursTaken
+FROM EventHistory
+GROUP BY EventName, OrderCategory
+ORDER BY OrderCategory, EventName
+
+--38. Order processing: time in each stage, part 3
+--The previous query was very helpful to the operations manager, to help her get an overview of
+--differences in order processing between online and offline orders.
+--Now she has another request, which is to have the averages for online/offline status on the same
+--line, to make it easier to compare.
+
+
+--39. Top three product subcategories per customer
+--The marketing department would like to have a listing of customers, with the top 3 product
+--subcategories that they've purchased.
+--To define “top 3 product subcategories”, we'll order by the total amount purchased for those
+--subcategories (i.e. the line total).
+--Normally we'd run the query for all customers, but to make it easier to view the results, please
+--limit to just the following customers:
+	--13763
+	--13836
+	--20331
+	--21113
+	--26313
+--Sort the results by CustomerID
+
+
+WITH CustomerOrderDetail AS (
+	SELECT CustomerID, ProductSubCategoryName, LineTotal
+	FROM SalesOrderDetail AS S JOIN SalesOrderHeader H ON (
+		S.SalesOrderID = H.SalesOrderID
+	) JOIN Product AS P ON (
+		S.ProductID = P.ProductID
+	) JOIN ProductSubcategory AS C ON (
+		P.ProductSubcategoryID = C.ProductSubcategoryID
+	)
+), CustomerOrderCategory AS (
+	SELECT CustomerID, ProductSubCategoryName, SUM(LineTotal) AS Total
+	FROM CustomerOrderDetail
+	GROUP BY CustomerID, ProductSubCategoryName
+), CustomerOrderCategoryRank AS (
+	SELECT CustomerID, Total, ProductSubCategoryName, ROW_NUMBER() OVER (PARTITION BY CustomerID ORDER BY Total DESC) AS Rn
+	FROM CustomerOrderCategory
+)
+SELECT CustomerID, ProductSubcategoryName, Total
+FROM CustomerOrderCategoryRank
+WHERE Rn <= 3 AND CustomerID IN (
+	13763,
+	13836,
+	20331,
+	21113,
+	26313
+)
+
+
+--40. History table with date gaps
+--It turns out that, in addition to overlaps, there are also some gaps in the ProductListPriceHistory
+--table. That is, there are some date ranges for which there are no list prices. We need to find the
+--products and the dates for which there are no list prices.
+--This is one of the most challenging and fun problems in this book, so take your time and enjoy it!
+--Try doing it first without any hints, because even if you don't manage to solve the problem, you
+--will have learned much more.
+
+--ProductID		DateWithMissingPrice
+--742				2013-05-21
+--742				2013-05-22
+--742				2013-05-23
+--742				2013-05-24
+
+-- Idea: Find missing on two columns (ProductID and CalendarDate). So first step is to create the cartesian product of the two
+
+WITH ProductAvailablePeriod AS (
+	SELECT ProductID, MIN(StartDate) AS MinStartDate, MAX(ISNULL(EndDate, '2014-05-29')) AS MaxEndDate
+	FROM ProductListPriceHistory
+	GROUP BY ProductID
+), ProductDates AS (
+	SELECT ProductID, CalendarDate
+	FROM ProductAvailablePeriod AS P LEFT JOIN Calendar AS C ON (
+		CalendarDate >= MinStartDate AND CalendarDate < MaxEndDate 
+	) 
+)
+SELECT D.ProductID, CalendarDate
+FROM ProductDates D LEFT JOIN ProductListPriceHistory P ON (
+	D.ProductID = P.ProductID AND
+	D.CalendarDate BETWEEN P.StartDate AND ISNULL(P.EndDate, '2014-05-29')
+)
+WHERE P.ProductID IS NULL
+
