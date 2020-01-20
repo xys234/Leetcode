@@ -1,4 +1,6 @@
 '''
+
+3.
 (Medium)
 
 Given a string, find the length of the longest substring without repeating characters.
@@ -9,14 +11,13 @@ Given "abcabcbb", the answer is "abc", which the length is 3.
 
 Given "bbbbb", the answer is "b", with the length of 1.
 
-Given "pwwkew", the answer is "wke", with the length of 3. Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
+Given "pwwkew", the answer is "wke", with the length of 3.
+Note that the answer must be a substring, "pwke" is a subsequence and not a substring.
 
 
 
 
 '''
-
-
 
 
 class Solution(object):
@@ -48,34 +49,45 @@ class Solution(object):
         print(maxstr)
         return(maxlen)
 
+    def lengthOfLongestSubstring2(self, s):
+        m = {}
+        start = 0
+        max_len = 0
+
+        for i, c in enumerate(s):
+            if c in m:
+                start = max(m[c] + 1, start)
+
+            m[c] = i
+            length = i + 1 - start
+            max_len = max(max_len, length)
+        return max_len
+
+
 if __name__ == "__main__":
     
-    Sol = Solution() 
-    
-    s = "bcdb"
-    assert Sol.lengthOfLongestSubstring(s) == 3
-
-    s = "bcd"
-    assert Sol.lengthOfLongestSubstring(s) == 3
-
-    s = "dvdf"
-    assert Sol.lengthOfLongestSubstring(s) == 3
- 
-    s = "b"
-    assert Sol.lengthOfLongestSubstring(s) == 1
- 
-    s = "bbbb"
-    assert Sol.lengthOfLongestSubstring(s) == 1
-
-    s = "pwwwkew"
-    assert Sol.lengthOfLongestSubstring(s) == 3
-
-    s = "abcabcbb"
-    assert Sol.lengthOfLongestSubstring(s) == 3  
-
-    s = "anviaj"
-    assert Sol.lengthOfLongestSubstring(s) == 5  
+    sol = Solution()
+    method = sol.lengthOfLongestSubstring2
 
     long_s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"
-    s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~"*1000
-    assert Sol.lengthOfLongestSubstring(s) == len(long_s)
+    s = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~" * 1000
+
+    cases = [
+        (method, ("bcdb",), 3),
+        (method, ("bcd",), 3),
+        (method, ("dvdf",), 3),
+        (method, ("b",), 1),
+        (method, ("bbbb",), 1),
+        (method, ("pwwwkew",), 3),
+        (method, ("abcabcbb",), 3),
+        (method, ("anviaj",), 5),
+        (method, ("tmmzuxt",), 5),
+        (method, (s,), len(long_s)),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
