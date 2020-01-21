@@ -34,7 +34,8 @@ Explanation:
 
 """
 
-from math import gcd
+from math import gcd, inf
+import fractions
 
 # Definition for a point.
 class Point:
@@ -125,12 +126,59 @@ class Solution:
             ans = max(ans, max_pts + same_pts)
         return ans
 
+    def maxPoints2(self, points):
+        n = len(points)
+
+        if n <= 1:
+            return n
+        max_count = 2
+        for i in range(n):
+            x1, y1 = points[i]
+            count = 0
+            slopes = {}
+            same_pts = 0
+            for j in range(i+1, n):
+                x2, y2 = points[j]
+                if x2 == x1 and y2 == y1:
+                    same_pts += 1
+                else:
+                    if x2 == x1:
+                        s = float('inf')
+                    else:
+                        s = fractions.Fraction(y2-y1, x2-x1)
+                    if s in slopes:
+                        slopes[s] += 1
+                    else:
+                        slopes[s] = 1
+                    count = max(count, slopes[s])
+            max_count = max(max_count, count+same_pts+1)
+
+        return max_count
+
+
 if __name__ == '__main__':
-    # coordinates = [[1,1],[2,2],[3,3]]
-    # coordinates = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]
-    # coordinates = [[3,1],[12,3],[3,1],[-6,-1]]
-    # coordinates = [[0,0],[94911151,94911150],[94911152,94911151]]
-    coordinates = [[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]]    # 4
-    points = [Point(c[0], c[1]) for c in coordinates]
+
     sol = Solution()
-    print(sol.maxPoints(points))
+    method = sol.maxPoints2
+
+    cases = [
+        # (method, ([[1,1],[2,2],[3,3]],), 3),
+        # (method, ([[1,1],[1,1],[1,1]],), 3),
+        # (method, ([[1,1],[1,1],[2,3]],), 3),
+        # (method, ([[0,0],[0,0]],), 2),
+        # (method, ([[0,0],[0,0],[0,0],[0,0]],), 4),
+        # (method, ([[1,1],[3,2],[5,3],[4,1],[2,3],[1,4]],), 4),
+        # (method, ([[3,1],[12,3],[3,1],[-6,-1]],), 4),
+        (method, ([[94911150, 94911151],[94911151, 94911152],[0,0]],), 2),
+        # (method, ([[84,250],[0,0],[1,0],[0,-70],[0,-70],[1,-1],[21,10],[42,90],[-42,-230]],), 6),
+        # (method, ([[0,9],[138,429],[115,359],[115,359],[-30,-102],[230,709],[-150,-686],[-135,-613],
+        #            [-60,-248],[-161,-481],[207,639],[23,79],[-230,-691],[-115,-341],[92,289],
+        #            [60,336],[-105,-467],[135,701],[-90,-394],[-184,-551],[150,774]],), 12),
+    ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != {:s}".format(i + 1, str(expected), str(ans)))
