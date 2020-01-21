@@ -61,6 +61,24 @@ class Solution:
                 dp[i]=dp[i]+dp[i-num]
         return dp[w]
 
+    def findTargetSumWays2(self, nums: List[int], S: int) -> int:
+        n = len(nums)
+        total = sum(nums)
+
+        if S > total or S < -total:
+            return 0
+
+        dp = [[0] * (2 * total + 1) for _ in range(n)]
+
+        dp[0][nums[0] + total] = 1
+        dp[0][-nums[0] + total] += 1
+
+        for i in range(1, n):
+            for k in range(-total, total + 1):
+                if dp[i - 1][k + total] > 0:
+                    dp[i][k + nums[i] + total] += dp[i - 1][k + total]
+                    dp[i][k - nums[i] + total] += dp[i - 1][k + total]
+        return dp[-1][S + total]
 
 if __name__ == '__main__':
 

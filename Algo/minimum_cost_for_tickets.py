@@ -54,7 +54,7 @@ class Solution(object):
         current_day = 1
         for d in days:
             while current_day <= d - 1:
-                dp[current_day] = dp[current_day - 1]
+                dp[current_day] = dp[current_day - 1]   # successful travel until yesterday. no travel today
                 current_day += 1
             if current_day == d:
                 if current_day >= 30:

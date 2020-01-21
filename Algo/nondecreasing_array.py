@@ -42,16 +42,35 @@ class Solution:
         #         return False
         return True
 
+    def checkPossibility2(self, nums):
+        n = len(nums)
+        pos, pairs = 0, 0
+        for i, num in enumerate(nums):
+            if i < n - 1 and num > nums[i+1]:
+                pairs += 1
+                if pairs == 1:
+                    pos = i
+                if pairs >= 2:
+                    return False
+
+        if 0 < pos < n - 2 and nums[pos + 1] < nums[pos - 1] and nums[pos] > nums[pos+2]:
+            return False
+        return True
+
 
 if __name__=='__main__':
 
     sol = Solution()
+    method = sol.checkPossibility2
 
     cases = [
-        (sol.checkPossibility, ([4,2,3],), True),
-        (sol.checkPossibility, ([4,2,1],), False),
-        (sol.checkPossibility, ([1,3,2],), True),
-        (sol.checkPossibility, ([1,2,4,5,3],), True),
+        (method, ([4,2,3],), True),
+        (method, ([4,2,1],), False),
+        (method, ([1,3,2],), True),
+        (method, ([1,2,4,5,3],), True),
+        (method, ([3,4,2,3],), False),
+        (method, ([-1,4,2,3],), True),
+        (method, ([2,3,3,2,4],), True),
 
              ]
 

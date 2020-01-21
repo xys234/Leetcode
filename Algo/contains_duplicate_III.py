@@ -22,6 +22,7 @@ Output: false
 2019.02.07 Reviewed; Group numbers into ranges with centers at t, 2t, 3t...,
 """
 
+import bisect
 
 class Solution:
     def containsNearbyAlmostDuplicate_brute_force(self, nums, k, t):
@@ -40,29 +41,66 @@ class Solution:
         return False
 
     def containsNearbyAlmostDuplicate(self, nums, k, t):
-        if t < 0:
-            return False
-        key_to_val = {}
-        for num in nums:
-            key = (num) // (t+1)
-            if key in key_to_val:
-                return True
-            elif key + 1 in key_to_val and num - key_to_val[key+1] <= t:
-                return True
-            elif key - 1 in key_to_val and num - key_to_val[key-1] <= t:
-                return True
-            key_to_val[key] = num
+        window = []
+        for i, num in enumerate(nums):
+            ind = bisect.bisect_left(window, num)
+            window.insert(ind, num)
+            if len(window) > k+1:
+                pop_ind = bisect.bisect_left(window, nums[i-k-1])
+                window.pop(pop_ind)
+                if ind > 0:
+                    ind -= 1
+
+            if len(window) > 1:
+                if ind + 1 >= len(window):
+                    if abs(window[ind] - window[ind-1]) <= t:
+                        return True
+                elif ind - 1 < 0:
+                    if abs(window[ind] - window[ind+1]) <= t:
+                        return True
+                else:
+                    if abs(window[ind] - window[ind+1]) <= t or abs(window[ind] - window[ind-1]) <= t:
+                        return True
         return False
 
+    def containsNearbyAlmostDuplicate_solution(self, nums, k: int, t: int) -> bool:
+
+        if t == 0 and len(nums) == len(set(nums)):
+            return False
+
+        for i, val in enumerate(nums):
+            for j in range(i + 1, i + k + 1):
+                if j >= len(nums):
+                    break
+                if abs(nums[j] - val) <= t:
+                    return True
+
+        return False
+
+
 if __name__ == '__main__':
-    cases = [
+    # cases = [
         # ([1, 2, 3, 1], 3, 0),
         # ([1,0,1,1], 1, 2),
-        ([1,5,9,1,5,9], 2, 3),
+        # (),
         # ([3,6,0,4], 2, 2),
 
-    ]
-    s = Solution()
-    for case in cases:
-        nums, k, t = case
-        print(s.containsNearbyAlmostDuplicate(nums, k, t))
+    # ]
+
+    sol = Solution()
+    method = sol.containsNearbyAlmostDuplicate
+
+    cases = [
+
+        # (method, ([1, 2, 3, 1], 3, 0,), True),
+        # (method, ([1,5,9,1,5,9], 2, 3), False),
+        (method, ([1, 2, 3, 1], 1, 0,), False),
+
+             ]
+
+    for i, (func, case, expected) in enumerate(cases):
+        ans = func(*case)
+        if ans == expected:
+            print("Case {:d} Passed".format(i + 1))
+        else:
+            print("Case {:d} Failed; Expected {:s} != Output {:s}".format(i+1, str(expected), str(ans)))

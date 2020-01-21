@@ -68,10 +68,32 @@ class Solution:
             prev, curr = curr, curr + 1
         return max_len
 
+    def longestMountain2(self, A):
+        n = len(A)
+
+        if n <= 2:
+            return 0
+
+        ans = 0
+        start = 0
+        while start < n:
+            end = start
+            if end < n - 1 and A[end] < A[end+1]:
+                while end < n - 1 and A[end] < A[end+1]:
+                    end += 1
+
+                # if a peak is found, try to extend it
+                if end < n - 1 and A[end] > A[end+1]:
+                    while end < n - 1 and A[end] > A[end+1]:
+                        end += 1
+                    ans = max(ans, end-start+1)
+            start = max(end, start+1)
+        return ans
+
 
 if __name__=="__main__":
     sol = Solution()
-    method = sol.longestMountain
+    method = sol.longestMountain2
 
     cases = [
         (method, ([2,1,4,7,3,2,5],), 5),
